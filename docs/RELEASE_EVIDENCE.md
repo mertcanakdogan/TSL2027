@@ -25,9 +25,9 @@ dağıtım iddiası değildir.
 
 ## Son yerel artifact
 
-- Executable: `build/TSL2027.exe`, 109466440 bytes
-- Portable package: `dist/TSL2027-windows-x64.zip`, 39354156 bytes
-- SHA256: `40C9B4F513194511E1B0B8133C4446CF4BE30157D7F280389C78FE212453CE7F`
+- Executable: `build/TSL2027.exe`, 109469704 bytes
+- Portable package: `dist/TSL2027-windows-x64.zip`, 39357470 bytes
+- SHA256: `521363CF8F680A03A93862A84636A8D0A89CE51D86F4EA35608222077D366E21`
 
 `build/` ve `dist/` generated output olduğu için Git'e eklenmez. ZIP'in içinde
 executable, README, MIT LICENSE ve `docs/DATA_AND_LICENSING.md` bulunur.
