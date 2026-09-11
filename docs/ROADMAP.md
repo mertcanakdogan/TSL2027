@@ -27,11 +27,13 @@
 - Açık değer sözleşmesine sahip Taktikler ekranı
 - Diziliş, zihniyet, markaj ve 0–100 taktik yoğunluklarının oturum state'i
 - Yönetilen ilk 11 ve taktik state'inin deterministik maç profili/xG modeline bağlanması
+- Sentetik ekonomi, haftalık maaş tahsilatı, sözleşme ve bonservis state'i
+- Deterministik transfer pazarı ve yönetilen kadroya oyuncu imzası
 
 ## Faz 1: Veri sözleşmesi — sıradaki işler
 
 - `Staff` ve `Venue` şemalarının yazılması
-- Kulüp ekonomisi için temel alanların eklenmesi
+- Satış/kiralık/pazarlık kapsamını genişleten kulüp ekonomisi kuralları
 - A takım kayıt kurallarını gerçek kadro akışına bağlayan doğrulama
 - Lisanslı veri import'u için kaynak, çekim tarihi ve dönüştürme sürümü alanlarının genişletilmesi
 
@@ -39,9 +41,7 @@
 
 - Takım seçme
 - Takım seçimini tüm lig takımlarına açma
-- Pozisyon uygunluğu
-- Formasyon ve rol seçimi
-- Formasyon seçimini ilk 11 pozisyon uygunluğu ile doğrulama
+- Pozisyon uygunluğu ve formasyon doğrulama dilimi tamamlandı; alt roller sonraki veri sözleşmesine bağlı
 - Antrenman planı
 - Moral, form ve kondisyon
 - Sakatlık ve cezalar
@@ -60,10 +60,7 @@
 
 ## Faz 4: Transfer ve kulüp yönetimi
 
-- Transfer listesi
-- Sözleşme
-- Maaş bütçesi
-- Bonservis
+- Transfer listesi, sentetik imza akışı, sözleşme, maaş bütçesi ve bonservis ilk dilimi tamamlandı
 - Kiralık transfer
 - Yönetim hedefleri
 - Taraftar memnuniyeti

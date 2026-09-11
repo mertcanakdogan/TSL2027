@@ -20,7 +20,7 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
   senaryolar.
 - [x] Sürümlü save/load, aktif formasyonun saklanması ve uyumsuz kayıt reddi.
 - [x] Fikstür ve lig tablosu ekranlarının placeholder olmaktan çıkarılması.
-- [ ] Transfer ekranının ekonomi ve sözleşme state'iyle gerçek hale gelmesi.
+- [x] Transfer ekranının sentetik ekonomi, maaş bütçesi, sözleşme ve imza state'iyle gerçek hale gelmesi.
 - [ ] Windows export, temiz makinede açılış ve temel kullanıcı akışı smoke testi.
 - [ ] Credits, lisans sınırları, sentetik veri bildirimi ve kullanıcıya görünür
   veri politikası.

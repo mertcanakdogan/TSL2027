@@ -25,8 +25,8 @@ func load_from_files(team_path: String, player_path: String, rules_path: String)
 		return _fail("Takım veri paketi 'teams' listesi içermiyor.")
 	if not player_payload.has("players") or typeof(player_payload["players"]) != TYPE_ARRAY:
 		return _fail("Oyuncu veri paketi 'players' listesi içermiyor.")
-	if not rules_payload.has("competition") or not rules_payload.has("squad"):
-		return _fail("Kural veri paketi competition ve squad bölümlerini içermiyor.")
+	if not rules_payload.has("competition") or not rules_payload.has("squad") or not rules_payload.has("economy"):
+		return _fail("Kural veri paketi competition, squad ve economy bölümlerini içermiyor.")
 
 	teams = team_payload["teams"].duplicate(true)
 	players = player_payload["players"].duplicate(true)
