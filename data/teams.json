@@ -1,0 +1,24 @@
+{
+  "season": "2026-2027",
+  "source_note": "Takım adları 2026-2027 Süper Lig fikstüründeki kulüplerden alınan prototip kimlikleridir. strength değerleri resmi rating değildir ve oyun dengelemesi için sentetik olarak belirlenmiştir.",
+  "teams": [
+    {"id": "galatasaray", "name": "Galatasaray", "strength": 84},
+    {"id": "fenerbahce", "name": "Fenerbahçe", "strength": 82},
+    {"id": "besiktas", "name": "Beşiktaş", "strength": 78},
+    {"id": "trabzonspor", "name": "Trabzonspor", "strength": 76},
+    {"id": "basaksehir", "name": "Başakşehir", "strength": 73},
+    {"id": "samsunspor", "name": "Samsunspor", "strength": 68},
+    {"id": "goztepe", "name": "Göztepe", "strength": 66},
+    {"id": "kasimpasa", "name": "Kasımpaşa", "strength": 65},
+    {"id": "gaziantep", "name": "Gaziantep FK", "strength": 64},
+    {"id": "caykur_rizespor", "name": "Çaykur Rizespor", "strength": 64},
+    {"id": "konyaspor", "name": "Konyaspor", "strength": 63},
+    {"id": "alanyaspor", "name": "Alanyaspor", "strength": 63},
+    {"id": "eyupspor", "name": "Eyüpspor", "strength": 62},
+    {"id": "kocaelispor", "name": "Kocaelispor", "strength": 61},
+    {"id": "genclerbirligi", "name": "Gençlerbirliği", "strength": 60},
+    {"id": "erzurumspor", "name": "Erzurumspor FK", "strength": 58},
+    {"id": "corum_fk", "name": "Arca Çorum FK", "strength": 57},
+    {"id": "amed", "name": "Amed Sportif Faaliyetler", "strength": 56}
+  ]
+}
