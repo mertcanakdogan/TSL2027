@@ -239,6 +239,14 @@ tek orchestrator üzerinden atomik güncellenir ve save schema 3'te birlikte
 saklanır. Satış, kiralık transfer, taksit, menajer komisyonu ve çok yıllı
 pazarlık sonraki bir aşamanın kapsamıdır.
 
+### Kayıt dayanıklılığı
+
+`SaveGame` JSON'u önce `user://...tmp` dosyasına yazar. Başarılı yazımdan sonra
+mevcut ana kayıt `user://...bak` olarak korunur ve geçici dosya ana yola taşınır;
+commit başarısızsa eski kayıt geri alınmaya çalışılır. Ana JSON parse edilemezse
+geçerli `.bak` yüklenir ve kullanıcıya bildirilir. Şema/semantic validation
+seçilen payload üzerinde restore işleminden önce çalışır.
+
 ## 8. Oyuncu rolleri ve attribute profilleri
 
 Her pozisyon için üç alternatif rol, pozisyona ait attribute kümelerinin basit

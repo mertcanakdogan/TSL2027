@@ -57,6 +57,9 @@ Portable Windows paketini oluşturmak ve temiz bir klasörden doğrulamak için:
 Paket `dist/TSL2027-windows-x64.zip` altında oluşur ve executable ile birlikte
 README, MIT lisansı ve veri politikasını taşır.
 
+Kayıt sistemi `user://tsl2027_save.json` için geçici yazma ve `.bak` yedeği
+kullanır; bozuk ana JSON bulunduğunda geçerli yedeğe dönmeyi dener.
+
 Veri paketi kontrolü için:
 
 ```powershell

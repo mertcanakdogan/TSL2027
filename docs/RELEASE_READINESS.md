@@ -18,7 +18,8 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 - [x] Alt oyuncu rolü uygunluğu ve tüm lig takımlarında oyuncu attribute etkisi.
 - [x] Taktik etkileri, maç olayları ve maç istatistikleri için deterministik
   senaryolar.
-- [x] Sürümlü save/load, aktif formasyonun saklanması ve uyumsuz kayıt reddi.
+- [x] Sürümlü save/load, aktif formasyonun saklanması, uyumsuz kayıt reddi ve
+  temporary-write/backup recovery.
 - [x] Fikstür ve lig tablosu ekranlarının placeholder olmaktan çıkarılması.
 - [x] Transfer ekranının sentetik ekonomi, maaş bütçesi, sözleşme ve imza state'iyle gerçek hale gelmesi.
 - [x] Deterministik temel maç olayları, skorla tutarlı gol olayları ve maç istatistikleri.

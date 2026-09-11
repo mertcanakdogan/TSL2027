@@ -13,3 +13,4 @@
 | 2026-09-11 | decision | [Transfer and economy boundary](./transfer-economy-boundary.md) | Deterministic synthetic offers update squad, economy, contracts, and market atomically. |
 | 2026-09-11 | decision | [Match events boundary](./match-events-boundary.md) | Seeded score events and bounded match stats flow from MatchEngine into fixture/UI summaries. |
 | 2026-09-11 | decision | [Credits and data policy boundary](./credits-data-policy-boundary.md) | Read-only in-game attribution separates MIT source-code scope from synthetic and future real-data content. |
+| 2026-09-11 | decision | [Atomic save and backup boundary](./atomic-save-backup-boundary.md) | SaveGame commits through a temporary file and retains a backup for malformed-primary recovery. |

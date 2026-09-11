@@ -3,20 +3,30 @@ extends RefCounted
 
 const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
 const SAVE_SCHEMA_VERSION := 3
+const TEMP_SUFFIX := ".tmp"
+const BACKUP_SUFFIX := ".bak"
 
 var error_message: String = ""
 var last_payload: Dictionary = {}
+var last_load_source: String = ""
 
 func save_to_file(path: String, league, squad, tactics, economy, transfer, data_schema_version: String) -> bool:
 	error_message = ""
 	if not _is_user_path(path):
 		return _fail("Kayıt yalnızca user:// altında yazılabilir.")
-	last_payload = build_payload(league, squad, tactics, economy, transfer, data_schema_version)
-	var file := FileAccess.open(path, FileAccess.WRITE)
+	var payload: Dictionary = build_payload(league, squad, tactics, economy, transfer, data_schema_version)
+	var temporary_path: String = path + TEMP_SUFFIX
+	var file := FileAccess.open(temporary_path, FileAccess.WRITE)
 	if file == null:
-		return _fail("Kayıt dosyası açılamadı: %s" % path)
-	file.store_string(JSON.stringify(last_payload, "\t"))
+		return _fail("Geçici kayıt dosyası açılamadı: %s" % temporary_path)
+	file.store_string(JSON.stringify(payload, "\t"))
+	var write_error: Error = file.get_error()
 	file.close()
+	if write_error != OK:
+		return _fail("Geçici kayıt dosyasına yazılamadı: %s" % write_error)
+	if not _commit_temporary_save(path, temporary_path):
+		return false
+	last_payload = payload
 	return true
 
 func load_from_file(
@@ -30,7 +40,8 @@ func load_from_file(
 	expected_team_id: String
 ) -> bool:
 	error_message = ""
-	var payload: Dictionary = _read_payload(path)
+	last_load_source = ""
+	var payload: Dictionary = _read_payload_with_backup(path)
 	if payload.is_empty():
 		return false
 	if not _validate_payload(payload, league, squad, tactics, economy, transfer, expected_data_schema_version, expected_team_id):
@@ -67,6 +78,32 @@ func load_from_file(
 	last_payload = payload.duplicate(true)
 	return true
 
+func _commit_temporary_save(path: String, temporary_path: String) -> bool:
+	var target_absolute: String = ProjectSettings.globalize_path(path)
+	var temporary_absolute: String = ProjectSettings.globalize_path(temporary_path)
+	var backup_path: String = path + BACKUP_SUFFIX
+	var backup_absolute: String = ProjectSettings.globalize_path(backup_path)
+	if FileAccess.file_exists(backup_path):
+		var remove_backup_error: Error = DirAccess.remove_absolute(backup_absolute)
+		if remove_backup_error != OK:
+			return _fail("Eski yedek kayıt silinemedi: %s" % remove_backup_error)
+
+	var target_exists: bool = FileAccess.file_exists(path)
+	if target_exists:
+		var backup_error: Error = DirAccess.rename_absolute(target_absolute, backup_absolute)
+		if backup_error != OK:
+			return _fail("Mevcut kayıt yedeklenemedi: %s" % backup_error)
+
+	var commit_error: Error = DirAccess.rename_absolute(temporary_absolute, target_absolute)
+	if commit_error == OK:
+		return true
+
+	if target_exists:
+		var restore_error: Error = DirAccess.rename_absolute(backup_absolute, target_absolute)
+		if restore_error != OK:
+			return _fail("Yeni kayıt yazılamadı ve eski kayıt geri alınamadı: %s / %s" % [commit_error, restore_error])
+	return _fail("Geçici kayıt ana dosyaya taşınamadı: %s" % commit_error)
+
 func build_payload(league, squad, tactics, economy, transfer, data_schema_version: String) -> Dictionary:
 	return {
 		"save_schema_version": SAVE_SCHEMA_VERSION,
@@ -98,6 +135,23 @@ func _read_payload(path: String) -> Dictionary:
 		_fail("Kayıt dosyası geçerli bir JSON nesnesi değil: %s" % parser.get_error_message())
 		return {}
 	return parser.data
+
+func _read_payload_with_backup(path: String) -> Dictionary:
+	var payload: Dictionary = _read_payload(path)
+	if not payload.is_empty():
+		last_load_source = "primary"
+		return payload
+	var primary_error: String = error_message
+	var backup_path: String = path + BACKUP_SUFFIX
+	if not FileAccess.file_exists(backup_path):
+		return payload
+	var backup_payload: Dictionary = _read_payload(backup_path)
+	if not backup_payload.is_empty():
+		last_load_source = "backup"
+		error_message = "Ana kayıt okunamadı; yedek kayıt kullanıldı."
+		return backup_payload
+	error_message = "%s Yedek kayıt da okunamadı: %s" % [primary_error, error_message]
+	return {}
 
 func _validate_payload(
 	payload: Dictionary,
