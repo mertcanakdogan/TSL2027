@@ -16,3 +16,4 @@
 | 2026-09-11 | decision | [Atomic save and backup boundary](./atomic-save-backup-boundary.md) | SaveGame commits through a temporary file and retains a backup for malformed-primary recovery. |
 | 2026-09-11 | decision | [Player condition and fatigue boundary](./player-condition-fatigue-boundary.md) | SquadState owns bounded deterministic condition and SaveGame schema 4 persists it. |
 | 2026-09-11 | decision | [Full verification command boundary](./full-verification-command-boundary.md) | One PowerShell entry point runs core tests and the Windows release smoke chain. |
+| 2026-09-11 | evidence | [Release evidence](../../docs/RELEASE_EVIDENCE.md) | Latest local test, export, package hash, and external release boundary are recorded. |

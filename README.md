@@ -120,5 +120,6 @@ MIT License, üçüncü taraf futbol verilerine, kulüp logolarına, fotoğrafla
 - [Veri ve lisans politikası](docs/DATA_AND_LICENSING.md)
 - [Yol haritası](docs/ROADMAP.md)
 - [Canlıya alma hazırlık kapıları](docs/RELEASE_READINESS.md)
+- [Release doğrulama kanıtı](docs/RELEASE_EVIDENCE.md)
 - [Örnek veri notları](data/README.md)
 - [Değişiklik günlüğü](CHANGELOG.md)
