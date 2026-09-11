@@ -10,16 +10,23 @@ const COLOR_MUTED := Color(0.62, 0.66, 0.72, 1.0)
 const COLOR_SUCCESS := Color(0.0, 0.588235, 0.431373, 1.0)
 
 var squad_state
+var team_name: String = "Kocaelispor"
 var selected_player_id: String = ""
 var summary_label: Label
+var subtitle_label: Label
 var selection_label: Label
 var starting_list: VBoxContainer
 var bench_list: VBoxContainer
 var roster_list: VBoxContainer
 
-func setup(state) -> void:
+func setup(state, managed_team_name: String = "Kocaelispor") -> void:
 	squad_state = state
-	_build_ui()
+	team_name = managed_team_name
+	selected_player_id = ""
+	if subtitle_label == null:
+		_build_ui()
+	else:
+		subtitle_label.text = "%s prototip kadrosu • başlangıç planı 4-4-2" % team_name
 	_refresh_ui()
 
 func _build_ui() -> void:
@@ -29,7 +36,8 @@ func _build_ui() -> void:
 	var header := VBoxContainer.new()
 	add_child(header)
 	header.add_child(_make_label("Kadro", 24, COLOR_TEXT))
-	header.add_child(_make_label("Kocaelispor prototip kadrosu • başlangıç planı 4-4-2", 14, COLOR_MUTED))
+	subtitle_label = _make_label("%s prototip kadrosu • başlangıç planı 4-4-2" % team_name, 14, COLOR_MUTED)
+	header.add_child(subtitle_label)
 	summary_label = _make_label("Kadro yükleniyor", 13, COLOR_SUCCESS)
 	header.add_child(summary_label)
 

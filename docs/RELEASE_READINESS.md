@@ -13,7 +13,7 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 - [x] Taktikler state'i ve ekranı doğrulanıyor.
 - [x] Yönetilen ilk 11 ve taktik state'i deterministik maç profiline/xG'ye
   bağlanıyor; sentetik prototip formülü test ediliyor.
-- [ ] Takım seçimi ve yeni oyun akışı.
+- [x] 18 takımdan seçim yapma ve açık “Yeni Kariyeri Başlat” akışı.
 - [ ] Formasyon/rol uygunluğu ve tüm lig takımlarında oyuncu attribute etkisi.
 - [ ] Taktik etkileri, maç olayları ve maç istatistikleri için deterministik
   senaryolar.

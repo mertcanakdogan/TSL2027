@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Headless match-engine tests cover deterministic replay, player-context effects, and tactical directionality.
 - Read-only Fikstür and Lig Tablosu screens now render from LeagueState and refresh after weekly simulation.
 - Versioned JSON save/load now restores the season, fixture results, lineup IDs, and tactics with schema checks.
+- Team Seç now starts a fresh week-one career for any of the 18 loaded prototype teams.
 - Headless Godot tests for squad state and main-scene screen switching.
 - Deterministic synthetic player data for all 18 prototype teams.
 - Versioned competition rules data pack for the 2026-2027 prototype season.
@@ -25,3 +26,4 @@ All notable changes to this project will be documented in this file.
 - LeagueState refreshes the managed team's copied match context before each simulated week.
 - LeagueState exposes deep-copied managed-team fixtures for UI consumption.
 - Main dashboard exposes Kaydet/Yükle actions under `user://tsl2027_save.json`.
+- Managed-team identity is now dynamic across dashboard, squad, tactics, fixtures, context sync, and save/load validation.

@@ -8,3 +8,4 @@
 | 2026-09-11 | decision | [Match context boundary](./match-context-boundary.md) | Managed XI and tactical snapshots enter MatchEngine through copied optional contexts with deterministic, inspectable profile modifiers. |
 | 2026-09-11 | decision | [League views boundary](./league-views-boundary.md) | Fixture and standings screens remain read-only views over copied fixtures and LeagueState table data. |
 | 2026-09-11 | decision | [Save game boundary](./save-game-boundary.md) | Versioned JSON stores runtime IDs/state under user storage and validates before any restore mutation. |
+| 2026-09-11 | decision | [Team selection boundary](./team-selection-boundary.md) | One dynamic managed-team ID drives explicit new-career resets and all managed views. |
