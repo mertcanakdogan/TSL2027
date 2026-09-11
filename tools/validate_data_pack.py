@@ -128,6 +128,7 @@ def validate_payloads(team_payload: dict, player_payload: dict, rules_payload: d
         "competition.matchday_squad_size": 21,
         "competition.max_substitutions": 5,
         "squad.max_a_team_players": 28,
+        "squad.bench_size": 7,
         "squad.max_foreign_players": 14,
         "squad.min_national_team_eligible_players": 14,
         "squad.min_young_national_team_eligible_players": 4,

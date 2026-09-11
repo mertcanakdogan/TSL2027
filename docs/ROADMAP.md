@@ -29,6 +29,8 @@
 - Yönetilen ilk 11 ve taktik state'inin deterministik maç profili/xG modeline bağlanması
 - Sentetik ekonomi, haftalık maaş tahsilatı, sözleşme ve bonservis state'i
 - Deterministik transfer pazarı ve yönetilen kadroya oyuncu imzası
+- Runtime `CompetitionRules` modeliyle JSON sezon kurallarının normalize edilmesi ve League/Squad/Save/UI katmanlarına aktarılması
+- Transfer sonrası kadro dışı oyuncunun bench'e alınması ve formasyon uyumlu ilk 11 değişimi
 
 ## Faz 1: Veri sözleşmesi — sıradaki işler
 
@@ -36,6 +38,7 @@
 - Satış/kiralık/pazarlık kapsamını genişleten kulüp ekonomisi kuralları
 - A takım kayıt kurallarını gerçek kadro akışına bağlayan doğrulama
 - Lisanslı veri import'u için kaynak, çekim tarihi ve dönüştürme sürümü alanlarının genişletilmesi
+- Alternatif rule pack'leri için runtime ve fixture property testlerinin genişletilmesi
 
 ## Faz 2: Menajerlik çekirdeği
 
@@ -79,13 +82,11 @@
 
 ## Faz 6: Dağıtım
 
-- Windows export
-- Save migration (schema 3 -> 4)
 - Mod desteği
-- Veri paketleri
-- Lisans ve credits ekranı
+- Veri paketleri ve lisanslı import pipeline'ı
 - Performans profili
 - Kullanıcı testleri
+- Temiz makine, installer ve code-signing smoke kapıları
 
 ## Tasarım kuralı
 

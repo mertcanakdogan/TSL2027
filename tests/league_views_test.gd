@@ -12,6 +12,25 @@ func _init() -> void:
 		{"id": "c", "name": "C", "strength": 60},
 		{"id": "d", "name": "D", "strength": 60}
 	], 2026)
+	var custom_rules := {
+		"season": "test-season",
+		"team_count": 4,
+		"rounds": 2,
+		"weeks": 6
+	}
+	var custom_league = LeagueStateScript.new()
+	_check(custom_league.initialize([
+		{"id": "a", "name": "A", "strength": 60},
+		{"id": "b", "name": "B", "strength": 60},
+		{"id": "c", "name": "C", "strength": 60},
+		{"id": "d", "name": "D", "strength": 60}
+	], 2026, {}, custom_rules), "alternate competition rules should initialize")
+	_check(custom_league.season_label == "test-season", "league should preserve the configured season label")
+	_check(custom_league.season_weeks == 6, "league should preserve the configured season length")
+	for _week in range(custom_league.season_weeks):
+		_check(not custom_league.play_next_week().is_empty(), "every configured alternate week should produce results")
+	_check(custom_league.current_week == 7, "alternate season should end immediately after its configured final week")
+	_check(not custom_league.get_season_summary().is_empty(), "alternate season summary should use configured season length")
 
 	var team_fixtures: Array = league.get_fixtures_for_team("a")
 	_check(team_fixtures.size() == 6, "four-team double round robin should give six fixtures")

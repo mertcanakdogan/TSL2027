@@ -144,6 +144,7 @@ def _build_rules(team_count: int) -> dict:
         },
         "squad": {
             "max_a_team_players": 28,
+            "bench_size": 7,
             "max_foreign_players": 14,
             "min_national_team_eligible_players": 14,
             "min_young_national_team_eligible_players": 4,

@@ -18,6 +18,7 @@ if (-not (Test-Path -LiteralPath $GodotPath -PathType Leaf)) {
 
 $tests = @(
     "squad_state_test.gd",
+    "competition_rules_test.gd",
     "tactics_state_test.gd",
     "match_engine_test.gd",
     "league_views_test.gd",

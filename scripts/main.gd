@@ -1,6 +1,7 @@
 extends Control
 
 const LeagueStateScript = preload("res://scripts/core/league_state.gd")
+const CompetitionRulesScript = preload("res://scripts/core/competition_rules.gd")
 const DataPackScript = preload("res://scripts/core/data_pack.gd")
 const SquadStateScript = preload("res://scripts/core/squad_state.gd")
 const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
@@ -54,6 +55,7 @@ var standings_view
 var team_selection_view
 var credits_view
 var save_game
+var season_header_label: Label
 var dashboard_subtitle: Label
 var dashboard_nodes: Array = []
 var content_scroll: ScrollContainer
@@ -79,11 +81,12 @@ func _start_new_career(selected_team_id: String) -> bool:
 	if selected_team.is_empty():
 		_set_data_error_state("Seçilen takım veri paketinde bulunamadı: %s" % selected_team_id)
 		return false
+	var competition_rules: Dictionary = data_pack.competition_rules.get_snapshot()
 	managed_team_id = selected_team_id
 	managed_team_name = String(selected_team.get("name", selected_team_id))
 
 	squad_state = SquadStateScript.new()
-	if not squad_state.initialize(managed_team_id, data_pack.get_team_squad(managed_team_id)):
+	if not squad_state.initialize(managed_team_id, data_pack.get_team_squad(managed_team_id), int(competition_rules["bench_size"]), competition_rules):
 		_set_data_error_state(squad_state.error_message)
 		return false
 	tactics_state = TacticsStateScript.new()
@@ -103,16 +106,19 @@ func _start_new_career(selected_team_id: String) -> bool:
 	if not transfer_market_state.initialize(
 		data_pack.players,
 		managed_team_id,
-		int(data_pack.rules.get("economy", {}).get("transfer_window_end_week", 8))
+		int(competition_rules["transfer_window_end_week"])
 	):
 		_set_data_error_state(transfer_market_state.error_message)
 		return false
 	league = LeagueStateScript.new()
-	league.initialize(data_pack.teams, 2026, _build_default_team_contexts())
+	if not league.initialize(data_pack.teams, 2026, _build_default_team_contexts(), competition_rules):
+		_set_data_error_state(league.error_message)
+		return false
 	_sync_managed_context()
-	data_status_label.text = "%d takım • %d sentetik oyuncu • yönetilen: %s • şema %s" % [
+	data_status_label.text = "%d takım • %d sentetik oyuncu • %s • yönetilen: %s • şema %s" % [
 		data_pack.teams.size(),
 		data_pack.players.size(),
+		league.season_label,
 		managed_team_name,
 		data_pack.schema_version
 	]
@@ -134,12 +140,13 @@ func _find_team(team_id: String) -> Dictionary:
 
 func _build_default_team_contexts() -> Dictionary:
 	var contexts: Dictionary = {}
+	var competition_rules: Dictionary = data_pack.competition_rules.get_snapshot()
 	var default_tactics = TacticsStateScript.new()
 	default_tactics.initialize()
 	for team in data_pack.teams:
 		var team_id: String = String(team.get("id", ""))
 		var default_squad = SquadStateScript.new()
-		if not default_squad.initialize(team_id, data_pack.get_team_squad(team_id)):
+		if not default_squad.initialize(team_id, data_pack.get_team_squad(team_id), int(competition_rules["bench_size"]), competition_rules):
 			continue
 		contexts[team_id] = {
 			"starting_xi": default_squad.get_starting_xi(),
@@ -175,11 +182,12 @@ func _build_ui() -> void:
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title_box)
 	title_box.add_child(_make_label("TSL2027", 30, COLOR_TEXT))
-	title_box.add_child(_make_label("Trendyol Süper Lig 2026/27 | İlk oynanabilir prototip", 14, COLOR_MUTED))
+	season_header_label = _make_label("Trendyol Süper Lig %s | İlk oynanabilir prototip" % CompetitionRulesScript.DEFAULT_SEASON, 14, COLOR_MUTED)
+	title_box.add_child(season_header_label)
 	data_status_label = _make_label("Veri paketi yükleniyor", 12, COLOR_MUTED)
 	title_box.add_child(data_status_label)
 
-	week_label = _make_label("Maç haftası 1/34", 16, COLOR_MUTED)
+	week_label = _make_label("Maç haftası 1/%d" % CompetitionRulesScript.DEFAULT_WEEKS, 16, COLOR_MUTED)
 	week_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	header.add_child(week_label)
 
@@ -254,7 +262,7 @@ func _build_ui() -> void:
 	stats_grid.add_theme_constant_override("v_separation", 12)
 	content.add_child(stats_grid)
 
-	week_value = _add_stat_card(stats_grid, "HAFTA", "1/34", COLOR_ACCENT)
+	week_value = _add_stat_card(stats_grid, "HAFTA", "1/%d" % CompetitionRulesScript.DEFAULT_WEEKS, COLOR_ACCENT)
 	leader_value = _add_stat_card(stats_grid, "LİDER", "-", COLOR_BLUE)
 	user_position_value = _add_stat_card(stats_grid, "TAKIM", "-", COLOR_SUCCESS)
 
@@ -363,10 +371,11 @@ func _refresh_ui() -> void:
 			user_position_value.text = "%d. sıra | %d puan" % [index + 1, int(rows[index]["points"])]
 			break
 
-	var displayed_week: int = min(league.current_week, 34)
-	week_label.text = "Maç haftası %d/34" % displayed_week
-	week_value.text = "%d/34" % displayed_week
-	play_button.disabled = league.current_week > 34
+	var displayed_week: int = min(league.current_week, league.season_weeks)
+	week_label.text = "Maç haftası %d/%d" % [displayed_week, league.season_weeks]
+	week_value.text = "%d/%d" % [displayed_week, league.season_weeks]
+	season_header_label.text = "Trendyol Süper Lig %s | İlk oynanabilir prototip" % league.season_label
+	play_button.disabled = league.current_week > league.season_weeks
 
 	var next_fixture: Dictionary = league.get_next_fixture_for_team(managed_team_id)
 	if next_fixture.is_empty():
@@ -406,7 +415,7 @@ func _on_save_pressed() -> void:
 	if not save_game.save_to_file(SAVE_PATH, league, squad_state, tactics_state, economy_state, transfer_market_state, data_pack.schema_version):
 		result_label.text = "Oyun kaydedilemedi: %s" % save_game.error_message
 		return
-	result_label.text = "Oyun kaydedildi. Hafta %d/%d" % [min(league.current_week, 34), 34]
+	result_label.text = "Oyun kaydedildi. Hafta %d/%d" % [min(league.current_week, league.season_weeks), league.season_weeks]
 
 func _on_load_pressed() -> void:
 	if save_game == null:
@@ -422,9 +431,9 @@ func _on_load_pressed() -> void:
 	fixture_view.setup(league, managed_team_id, managed_team_name)
 	_refresh_ui()
 	if save_game.last_load_source == "backup":
-		result_label.text = "Ana kayıt bozuktu; yedek kayıt yüklendi. Hafta %d/%d" % [min(league.current_week, 34), 34]
+		result_label.text = "Ana kayıt bozuktu; yedek kayıt yüklendi. Hafta %d/%d" % [min(league.current_week, league.season_weeks), league.season_weeks]
 	else:
-		result_label.text = "Oyun yüklendi. Hafta %d/%d" % [min(league.current_week, 34), 34]
+		result_label.text = "Oyun yüklendi. Hafta %d/%d" % [min(league.current_week, league.season_weeks), league.season_weeks]
 
 func _render_table(rows: Array) -> void:
 	for child in table_grid.get_children():
@@ -582,6 +591,7 @@ func _on_transfer_requested(player_id: String) -> void:
 		transfer_view.apply_result(transfer_market_state.error_message)
 		return
 	squad_view.setup(squad_state, managed_team_name)
+	_sync_managed_context()
 	transfer_view.apply_result("Transfer tamamlandı. Oyuncu kadroya ve sözleşmelere eklendi.")
 	result_label.text = "Transfer tamamlandı: %s" % player_id
 

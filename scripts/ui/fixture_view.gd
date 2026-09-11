@@ -24,7 +24,7 @@ func setup(state, managed_team_id: String, managed_team_name: String = "Kocaelis
 		_build_ui()
 		built = true
 	else:
-		subtitle_label.text = "%s 2026/27 lig fikstürü" % team_name
+		subtitle_label.text = "%s %s lig fikstürü" % [team_name, league_state.season_label]
 	refresh()
 
 func refresh() -> void:
@@ -46,7 +46,7 @@ func _build_ui() -> void:
 	var header := VBoxContainer.new()
 	add_child(header)
 	header.add_child(_make_label("Fikstür", 24, COLOR_TEXT))
-	subtitle_label = _make_label("%s 2026/27 lig fikstürü" % team_name, 14, COLOR_MUTED)
+	subtitle_label = _make_label("%s %s lig fikstürü" % [team_name, league_state.season_label], 14, COLOR_MUTED)
 	header.add_child(subtitle_label)
 	summary_label = _make_label("Fikstür yükleniyor", 13, COLOR_SUCCESS)
 	header.add_child(summary_label)

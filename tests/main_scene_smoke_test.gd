@@ -72,6 +72,14 @@ func _run() -> void:
 	transfer_view.call("_on_sign_pressed", String(first_offer["player"]["id"]))
 	_check(squad_view.squad_state.get_roster().size() == roster_before_transfer + 1, "Transfer action should add player to managed roster")
 	_check(not transfer_market.has_offer(String(first_offer["player"]["id"])), "Transfer action should remove signed offer")
+	var signed_player_id := String(first_offer["player"]["id"])
+	_check(squad_view.squad_state.get_player_group(signed_player_id) == "unselected", "a full bench should initially place a signed player in reserves")
+	var displaced_bench_id := String(squad_view.squad_state.get_bench()[0]["id"])
+	squad_view.call("_on_player_selected", signed_player_id)
+	squad_view.call("_on_player_selected", displaced_bench_id)
+	_check(squad_view.squad_state.get_player_group(signed_player_id) == "bench", "SquadView should promote a signed reserve to the bench")
+	_check(squad_view.squad_state.get_player_group(displaced_bench_id) == "unselected", "SquadView promotion should displace the selected bench player to reserves")
+
 
 	scene.call("_show_dashboard")
 	_check(not squad_view.visible, "dashboard action should hide SquadView")
@@ -92,6 +100,9 @@ func _run() -> void:
 	_check(dashboard_nodes[0].visible, "dashboard action should restore dashboard nodes")
 
 	var league = scene.get("league")
+	_check(String(league.season_label) == "2026-2027", "main scene should use the data-pack season label")
+	_check(int(league.season_weeks) == 34, "main scene should use the data-pack season length")
+	_check(fixture_view.subtitle_label.text.contains("2026-2027"), "FixtureView should render the active season label")
 	_check(league.team_contexts.size() == 18, "main scene should register default player contexts for every league team")
 	var registered_context: Dictionary = league.team_contexts.get("kocaelispor", {})
 	_check(registered_context.has("starting_xi"), "main scene should register managed starting XI context")

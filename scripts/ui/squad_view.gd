@@ -144,8 +144,7 @@ func _add_roster_player(parent: VBoxContainer, player: Dictionary) -> void:
 	row.add_child(player_label)
 
 	var select_button := Button.new()
-	select_button.text = "Seçildi" if selected_player_id == player_id else "Seç"
-	select_button.custom_minimum_size = Vector2(76, 28)
+	select_button.text = "Seçildi" if selected_player_id == player_id else ("Yedeğe al" if group == "unselected" else "Seç")
 	select_button.pressed.connect(_on_player_selected.bind(player_id))
 	row.add_child(select_button)
 
@@ -159,7 +158,10 @@ func _role_text(player: Dictionary) -> String:
 func _on_player_selected(player_id: String) -> void:
 	if selected_player_id.is_empty():
 		selected_player_id = player_id
-		selection_label.text = "%s seçildi. Değiştirmek istediğin ikinci oyuncuya bas." % _player_name(player_id)
+		if squad_state.get_player_group(player_id) == "unselected":
+			selection_label.text = "%s seçildi. Yedekten çıkarılacak oyuncuya bas." % _player_name(player_id)
+		else:
+			selection_label.text = "%s seçildi. Değiştirmek istediğin ikinci oyuncuya bas." % _player_name(player_id)
 		_refresh_ui()
 		return
 
@@ -170,9 +172,18 @@ func _on_player_selected(player_id: String) -> void:
 		return
 
 	var first_player_id := selected_player_id
-	if squad_state.swap_players(first_player_id, player_id):
+	var first_group: String = squad_state.get_player_group(first_player_id)
+	var second_group: String = squad_state.get_player_group(player_id)
+	var action_succeeded := false
+	if first_group == "unselected" and second_group == "bench":
+		action_succeeded = squad_state.promote_to_bench(first_player_id, player_id)
+	elif first_group == "bench" and second_group == "unselected":
+		action_succeeded = squad_state.promote_to_bench(player_id, first_player_id)
+	else:
+		action_succeeded = squad_state.swap_players(first_player_id, player_id)
+	if action_succeeded:
 		selected_player_id = ""
-		selection_label.text = "%s ↔ %s değiştirildi." % [_player_name(first_player_id), _player_name(player_id)]
+		selection_label.text = "%s ↔ %s güncellendi." % [_player_name(first_player_id), _player_name(player_id)]
 	else:
 		selection_label.text = squad_state.error_message
 	_refresh_ui()

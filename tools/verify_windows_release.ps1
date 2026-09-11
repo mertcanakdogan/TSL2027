@@ -45,10 +45,11 @@ try {
         Stop-Process -Id $runtimeProcess.Id -Force -ErrorAction SilentlyContinue
         throw "Temiz klasörden çalıştırılan paket smoke testte zaman aşımına uğradı. Loglar: $stdoutPath / $stderrPath"
     }
-    if ($runtimeProcess.ExitCode -ne 0) {
-        $stdout = if (Test-Path -LiteralPath $stdoutPath) { Get-Content -LiteralPath $stdoutPath -Raw } else { "" }
-        $stderr = if (Test-Path -LiteralPath $stderrPath) { Get-Content -LiteralPath $stderrPath -Raw } else { "" }
-        throw "Temiz klasörden çalıştırılan paket başarısız oldu (exit $($runtimeProcess.ExitCode)).`n$stdout`n$stderr"
+    $stdout = if (Test-Path -LiteralPath $stdoutPath) { Get-Content -LiteralPath $stdoutPath -Raw } else { "" }
+    $stderr = if (Test-Path -LiteralPath $stderrPath) { Get-Content -LiteralPath $stderrPath -Raw } else { "" }
+    $runtimeExitCode = $runtimeProcess.ExitCode
+    if (($null -ne $runtimeExitCode -and $runtimeExitCode -ne 0) -or $stderr -match "ERROR:|SCRIPT ERROR") {
+        throw "Temiz klasörden çalıştırılan paket başarısız oldu (exit $runtimeExitCode).`n$stdout`n$stderr"
     }
     $runtimeProcess.Close()
     $runtimeProcess.Dispose()
@@ -64,11 +65,18 @@ finally {
         $runtimeProcess.Dispose()
     }
     if (Test-Path -LiteralPath $extractPath) {
-        Start-Sleep -Milliseconds 500
-        try {
-            Remove-Item -LiteralPath $extractPath -Recurse -Force -ErrorAction Stop
+        $removed = $false
+        for ($attempt = 1; $attempt -le 10; $attempt++) {
+            try {
+                Remove-Item -LiteralPath $extractPath -Recurse -Force -ErrorAction Stop
+                $removed = $true
+                break
+            }
+            catch {
+                Start-Sleep -Milliseconds 500
+            }
         }
-        catch {
+        if (-not $removed -and (Test-Path -LiteralPath $extractPath)) {
             Write-Warning "Geçici extraction klasörü otomatik temizlenemedi; dosya kilidi kalkınca silinebilir: $extractPath"
         }
     }
