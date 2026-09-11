@@ -24,6 +24,7 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - Sentetik transfer pazarı, kulüp bütçesi, haftalık maaş tahsilatı ve sözleşme save/load akışı
 - Deterministik maç olayları ve şut/isabetli şut/korner/faul/kart/xG istatistikleri
 - Pozisyona göre üç alternatif rol uygunluğu ve oyuncu profillerinin maç profiline etkisi
+- Sezon bitiminde şampiyon ve üç küme düşen takımı gösteren türetilmiş özet
 - Araştırma, veri politikası ve geliştirme yol haritası
 
 Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri ve oyuncu attribute'ları yalnızca maç motoru ile menajerlik ekranlarını geliştirmek için hazırlanmış sentetik prototip varsayımlarıdır.

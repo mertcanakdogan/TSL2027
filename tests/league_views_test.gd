@@ -26,6 +26,18 @@ func _init() -> void:
 	var played_fixture: Dictionary = league.get_fixtures_for_team("a")[0]
 	_check(bool(played_fixture["played"]), "fixture query should expose played state")
 	_check(played_fixture["result"].has("events"), "played fixture should retain event list")
+	var before_finish: Dictionary = league.get_season_summary()
+	_check(before_finish.is_empty(), "season summary should be unavailable before week 35")
+	league.standings["a"]["points"] = 10
+	league.standings["b"]["points"] = 8
+	league.standings["c"]["points"] = 5
+	league.standings["d"]["points"] = 1
+	league.current_week = 35
+	var season_summary: Dictionary = league.get_season_summary()
+	_check(not season_summary.is_empty(), "season summary should be available after week 34")
+	_check(String(season_summary.get("champion", {}).get("id", "")) == "a", "champion should be the first table row")
+	_check(season_summary.get("relegated", []).size() == 3, "season summary should contain three relegated teams")
+	_check(String(season_summary["relegated"][0]["id"]) == "b", "relegation should start at the fourth table row")
 
 	if failures.is_empty():
 		print("OK: league view data tests passed")

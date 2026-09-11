@@ -126,6 +126,11 @@ func _run() -> void:
 	_check(selected_squad.get_roster().size() == 18, "selected team should receive its own roster")
 	_check(String(fixture_view.team_id) == "fenerbahce", "fixture view should follow selected team")
 	_check(fixture_view.fixture_list.get_child_count() == 34, "selected team should receive 34 fixtures")
+	for _week in range(34):
+		scene.call("_on_play_week_pressed")
+	_check(int(league.current_week) == 35, "season simulation should finish after 34 weeks")
+	_check(result_label.text.contains("Sezon tamamlandı. Şampiyon:"), "final match center should show the champion")
+	_check(result_label.text.contains("Küme düşenler:"), "final match center should show relegated teams")
 
 	scene.queue_free()
 	if failures.is_empty():

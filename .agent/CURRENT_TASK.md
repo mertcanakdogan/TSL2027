@@ -6,17 +6,17 @@ TSL2027: Godot 4 + GDScript ile geliştirilen, Trendyol Süper Lig 2026/27 temal
 
 ## Status
 
-In progress — Takım seçimi/yeni kariyer, Kadro/ilk 11, formasyon/alternatif rol uygunluğu, Taktikler state/UI ve deterministik taktik senaryoları, transfer/ekonomi/sözleşme, tüm lig varsayılan ilk 11 attribute profilleri, deterministik temel maç olayları/istatistikleri, Credits/veri politikası, kondisyon/yorgunluk, dayanıklı save/load, Fikstür/Lig Tablosu, Windows export, portable paket ve tek komutlu doğrulama tamamlandı; bağımsız temiz makine/code-signing ve daha geniş simülasyon kapıları devam ediyor.
+In progress — Takım seçimi/yeni kariyer, Kadro/ilk 11, formasyon/alternatif rol uygunluğu, Taktikler state/UI ve deterministik taktik senaryoları, transfer/ekonomi/sözleşme, tüm lig varsayılan ilk 11 attribute profilleri, deterministik temel maç olayları/istatistikleri, Credits/veri politikası, kondisyon/yorgunluk, dayanıklı save/load, Fikstür/Lig Tablosu, sezon sonu şampiyon/küme düşme özeti, Windows export, portable paket ve tek komutlu doğrulama tamamlandı; bağımsız temiz makine/code-signing ve daha geniş simülasyon kapıları devam ediyor.
 
 ## Last Session Summary
 
-2026-09-11 — Veri paketi üzerine takım seçimi/yeni kariyer akışı, `SquadState`, merkezi formasyon kuralları, formasyonla uyumlu ilk 11 uygulaması, transfer/ekonomi/sözleşme state'leri, deterministik maç olayları/istatistikleri, gerçek Kadro ve Transfer ekranları, yedek kulübesi ve iki oyunculu starter/bench değişimi eklendi. Ardından `TacticsState`/Taktikler ekranı, yönetilen takım bağlamının MatchEngine profil/xG etkisi, LeagueState kaynaklı Fikstür/Lig Tablosu ekranları ve sürümlü save/load eklendi.
+2026-09-11 — Veri paketi üzerine takım seçimi/yeni kariyer akışı, `SquadState`, merkezi formasyon kuralları, formasyonla uyumlu ilk 11 uygulaması, transfer/ekonomi/sözleşme state'leri, deterministik maç olayları/istatistikleri, gerçek Kadro ve Transfer ekranları, yedek kulübesi ve iki oyunculu starter/bench değişimi eklendi. Ardından `TacticsState`/Taktikler ekranı, yönetilen takım bağlamının MatchEngine profil/xG etkisi, LeagueState kaynaklı Fikstür/Lig Tablosu ekranları, sezon sonu özeti ve sürümlü save/load eklendi.
 
 ## Next Steps
 
 1. Maç olay pencereleri, oyuncu değişiklikleri, kart/sakatlık ve daha geniş maç raporunu tasarla.
 2. Bağımsız temiz makine/installer smoke testini ve code-signing kararını tamamla.
-3. Kullanıcı testleri ve sezon sonu özet akışını ekle.
+3. Kullanıcı testleri ve yeni sezon/lig ekosistemi akışlarını ekle.
 
 ## Blockers
 
