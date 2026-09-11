@@ -53,7 +53,7 @@
 - Deterministik temel maç olayları ve maç istatistikleri ilk rapor katmanı
 - Oyuncu özelliklerinin tüm lig takımlarının varsayılan ilk 11 profillerine genişletilmesi
 - Taktik eşleşmeleri ve pozisyon/rol uygunluğu
-- Yorgunluk ve fikstür yoğunluğu
+- Temel kondisyon/yorgunluk ve fikstür haftası etkisi
 - Oyuncu değişiklikleri
 - Kart ve sakatlık olayları
 - Daha geniş maç özeti ve temel istatistik ekranı; ilk sentetik rapor katmanı tamamlandı
@@ -80,7 +80,7 @@
 ## Faz 6: Dağıtım
 
 - Windows export
-- Save migration
+- Save migration (schema 3 -> 4)
 - Mod desteği
 - Veri paketleri
 - Lisans ve credits ekranı

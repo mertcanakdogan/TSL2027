@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - SaveGame artık geçici dosya commit'i, `.bak` yedeği ve bozuk ana kayıttan geri dönüş raporlaması kullanıyor.
 - Haftalık ilk 11 kondisyon düşüşü, bench recovery, düşük kondisyon maç cezası ve save schema 3 -> 4 migration eklendi.
 - Tüm yerel test/export/package kontrollerini çalıştıran `verify_project.ps1` eklendi.
+- Son yerel release kanıtı, artifact hash'i ve public dağıtım sınırı `docs/RELEASE_EVIDENCE.md` içine kaydedildi.
 - Headless Godot tests for squad state and main-scene screen switching.
 - Deterministic synthetic player data for all 18 prototype teams.
 - Versioned competition rules data pack for the 2026-2027 prototype season.

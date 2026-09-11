@@ -14,9 +14,9 @@ In progress — Takım seçimi/yeni kariyer, Kadro/ilk 11, formasyon/alternatif 
 
 ## Next Steps
 
-1. Maç olay pencereleri, kondisyon/yorgunluk ve oyuncu değişikliklerini tasarla.
+1. Maç olay pencereleri, oyuncu değişiklikleri, kart/sakatlık ve daha geniş maç raporunu tasarla.
 2. Bağımsız temiz makine/installer smoke testini ve code-signing kararını tamamla.
-3. Alt oyuncu rolleri ve tüm lig oyuncu attribute etkileri için simülasyon kapsamını genişlet.
+3. Kullanıcı testleri ve sezon sonu özet akışını ekle.
 
 ## Blockers
 
