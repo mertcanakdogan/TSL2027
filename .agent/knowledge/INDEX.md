@@ -14,8 +14,9 @@
 | 2026-09-11 | decision | [Match events boundary](./match-events-boundary.md) | Seeded score events and bounded match stats flow from MatchEngine into fixture/UI summaries. |
 | 2026-09-11 | decision | [Credits and data policy boundary](./credits-data-policy-boundary.md) | Read-only in-game attribution separates MIT source-code scope from synthetic and future real-data content. |
 | 2026-09-11 | decision | [Atomic save and backup boundary](./atomic-save-backup-boundary.md) | SaveGame commits through a temporary file and retains a backup for malformed-primary recovery. |
-| 2026-09-11 | decision | [Player condition and fatigue boundary](./player-condition-fatigue-boundary.md) | SquadState owns bounded deterministic condition and SaveGame schema 4 persists it. |
-| 2026-09-11 | decision | [Full verification command boundary](./full-verification-command-boundary.md) | One PowerShell entry point runs core tests and the Windows release smoke chain. |
+| 2026-09-11 | decision | [Player condition and fatigue boundary](./player-condition-fatigue-boundary.md) | SquadState owns bounded deterministic condition; SaveGame schema 5 persists condition and season-rule fields. |
+| 2026-09-11 | decision | [Full verification command boundary](./full-verification-command-boundary.md) | One PowerShell entry point runs the 10-test core suite and Windows release smoke chain with quoted presets and artifact/log checks. |
 | 2026-09-11 | evidence | [Release evidence](../../docs/RELEASE_EVIDENCE.md) | Latest local test, export, package hash, and external release boundary are recorded. |
-| 2026-09-11 | decision | [Season end summary boundary](./season-end-summary-boundary.md) | Final champion and three relegation rows are derived read-only after week 34. |
+| 2026-09-11 | decision | [Season end summary boundary](./season-end-summary-boundary.md) | Final champion and three relegation rows are derived after the configured season length. |
 | 2026-09-11 | decision | [Match substitution events boundary](./match-substitution-events-boundary.md) | Copied bench snapshots produce bounded deterministic report events without mutating lineup state. |
+| 2026-09-11 | decision | [Runtime competition rule source](./competition-rules-boundary.md) | `CompetitionRules` normalizes season and squad limits; reserve promotion and save schema 5 preserve the runtime contract. |

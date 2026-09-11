@@ -23,6 +23,10 @@ func _run_tests() -> void:
 	_check(state.get_bench().size() == 7, "bench should contain 7 players")
 	_check(_position_counts(state.get_starting_xi()) == {"GK": 1, "DF": 4, "MF": 4, "FW": 2}, "default XI should be 4-4-2")
 	_check(state.get_active_formation() == "4-4-2", "default active formation should be 4-4-2")
+	var invalid_rule_snapshot: Dictionary = state.get_snapshot()
+	invalid_rule_snapshot["bench_size"] = "invalid"
+	_check(not state.validate_snapshot(invalid_rule_snapshot), "malformed saved bench rules should fail validation")
+	_check(state.get_snapshot()["bench_size"] == 7, "malformed saved bench rules should not mutate active rules")
 	var initial_starter_id: String = String(state.get_starting_xi()[0]["id"])
 	var initial_bench_id: String = String(state.get_bench()[0]["id"])
 	_check(state.get_player_condition(initial_starter_id) == 100, "new starter should begin fully fit")
@@ -67,6 +71,33 @@ func _run_tests() -> void:
 	_check(state.get_player_group(starter_id) == "bench", "old starter should move to bench")
 	_check(state.get_player_group(bench_id) == "starting", "old bench player should move to starting XI")
 	_check(state.get_starting_xi().size() == 11 and state.get_bench().size() == 7, "swap should preserve group sizes")
+	var reserve_record := {
+		"id": "transfer_player",
+		"team_id": "kocaelispor",
+		"position": "MF",
+		"display_name": "Transfer Player"
+	}
+	_check(state.add_player(reserve_record), "a valid transfer should join the roster")
+	_check(state.get_player_group("transfer_player") == "unselected", "a full bench should leave a transfer in reserves")
+	var displaced_bench_id: String = String(state.get_bench()[0]["id"])
+	_check(state.promote_to_bench("transfer_player", displaced_bench_id), "an unselected player should be promotable to the bench")
+	_check(state.get_player_group("transfer_player") == "bench", "promoted player should belong to the bench")
+	_check(state.get_player_group(displaced_bench_id) == "unselected", "the displaced bench player should return to reserves")
+	_check(state.get_starting_xi().size() == 11 and state.get_bench().size() == 7, "reserve promotion should preserve group sizes")
+	var reserve_snapshot: Dictionary = state.get_snapshot()
+	_check(not state.promote_to_bench("transfer_player", displaced_bench_id), "a player already on the bench cannot be promoted twice")
+	_check(state.get_snapshot() == reserve_snapshot, "a failed duplicate promotion should not mutate state")
+	var starter_midfielder_id := _find_player_id(state.get_starting_xi(), "MF")
+	_check(not starter_midfielder_id.is_empty(), "test should find a starter midfielder for promoted-player swap")
+	_check(state.swap_players(starter_midfielder_id, "transfer_player"), "a promoted player should be eligible for a formation-compatible starter swap")
+	_check(state.get_player_group("transfer_player") == "starting", "promoted player should reach the starting XI through the normal swap path")
+	_check(state.get_player_group(starter_midfielder_id) == "bench", "the displaced starter should move to the bench")
+
+
+	var invalid_promotion_snapshot: Dictionary = state.get_snapshot()
+	_check(not state.promote_to_bench("missing", displaced_bench_id), "unknown reserve promotion should fail")
+	_check(state.get_snapshot() == invalid_promotion_snapshot, "unknown reserve promotion should not mutate state")
+
 
 	var duplicate_roster: Array = roster.duplicate(true)
 	duplicate_roster[1]["id"] = duplicate_roster[0]["id"]

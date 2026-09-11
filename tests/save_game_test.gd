@@ -33,7 +33,7 @@ func _init() -> void:
 	_check(squad.swap_players(first_player_id, bench_player_id), "test lineup should update")
 
 	var league = LeagueStateScript.new()
-	league.initialize(data_pack.teams, 2026)
+	_check(league.initialize(data_pack.teams, 2026, {}, data_pack.competition_rules.get_snapshot()), "test league should initialize from data-pack rules")
 	_check(league.play_next_week().size() == 9, "one week should produce nine results")
 	var saved_week: int = league.current_week
 	var saved_starting: Array = squad.starting_ids.duplicate()
@@ -43,6 +43,9 @@ func _init() -> void:
 	var saved_payload: Dictionary = saver.last_payload
 	_check(int(saved_payload["save_schema_version"]) == SaveGameScript.SAVE_SCHEMA_VERSION, "save schema version should be explicit")
 	_check(String(saved_payload["data_schema_version"]) == data_pack.schema_version, "data schema version should be explicit")
+	_check(String(saved_payload["season"]) == "2026-2027", "save should derive season identity from the active league rules")
+	_check(int(saved_payload["league_state"]["season_weeks"]) == 34, "save should persist the active league week count")
+	_check(int(saved_payload["squad_state"]["max_roster_size"]) == 28, "save should persist the active roster limit")
 	_check(String(saved_payload["squad_state"]["formation"]) == "4-3-3", "save should include the active squad formation")
 	_check(saved_payload["squad_state"]["roster"].size() == 19, "save should include the dynamic roster")
 	_check(saved_payload.has("economy_state") and saved_payload.has("transfer_state"), "save should include economy and transfer state")
@@ -104,6 +107,17 @@ func _init() -> void:
 	legacy_file.close()
 	_check(saver.load_from_file(SAVE_PATH, league, squad, tactics, economy, transfer_market, data_pack.schema_version, "kocaelispor"), "schema 3 save should migrate to the current schema")
 	_check(squad.get_player_condition(first_player_id) == 100, "migrated schema 3 save should initialize missing condition")
+	var previous_payload: Dictionary = saved_payload.duplicate(true)
+	previous_payload["save_schema_version"] = SaveGameScript.PREVIOUS_SAVE_SCHEMA_VERSION
+	previous_payload["league_state"].erase("season")
+	previous_payload["league_state"].erase("season_weeks")
+	previous_payload["league_state"].erase("rounds")
+	var previous_file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	previous_file.store_string(JSON.stringify(previous_payload))
+	previous_file.close()
+	_check(saver.load_from_file(SAVE_PATH, league, squad, tactics, economy, transfer_market, data_pack.schema_version, "kocaelispor"), "schema 4 save should migrate season rule fields")
+	_check(league.season_label == "2026-2027" and league.season_weeks == 34, "schema 4 migration should restore active season rules")
+
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH + SaveGameScript.BACKUP_SUFFIX))

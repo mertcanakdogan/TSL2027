@@ -13,8 +13,10 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - Godot 4 + GDScript başlangıç arayüzü
 - 18 takım için 324 oyuncudan oluşan sentetik veri paketi
 - Sezon kurallarını ayrı JSON paketi olarak yükleme
+- Runtime `CompetitionRules` modeliyle sezon, kadro, bench ve transfer penceresi kuralları tek kaynaktan okunur
 - Veri paketi generator'ı ve Python doğrulama testleri
 - Çalışan Kadro ekranı, 4-4-2 ilk 11 ve yedek oyuncu değişimi
+- Transfer edilen oyuncuyu reserves durumundan yedek kulübesine ve uyumlu ilk 11 pozisyonuna taşıma akışı
 - Çalışan Taktikler ekranı: diziliş, zihniyet, markaj ve 0-100 taktik yoğunlukları
 - Yönetilen ilk 11 ve taktik state'inin deterministik maç profili/xG modeline etkisi
 - Çalışan Fikstür ve Lig Tablosu ekranları; haftalık simülasyonla yenilenir
@@ -78,6 +80,7 @@ Veri paketi kontrolü için:
 python tools/generate_synthetic_data.py
 python tools/validate_data_pack.py
 python tools/test_data_pack.py
+godot --headless --path . --script res://tests/competition_rules_test.gd
 godot --headless --path . --script res://tests/squad_state_test.gd
 godot --headless --path . --script res://tests/tactics_state_test.gd
 godot --headless --path . --script res://tests/match_engine_test.gd

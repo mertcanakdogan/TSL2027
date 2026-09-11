@@ -21,18 +21,35 @@ var team_id: String = ""
 var roster: Array = []
 var starting_ids: Array = []
 var bench_ids: Array = []
+var max_roster_size: int = MAX_ROSTER_SIZE
+var bench_limit: int = BENCH_SIZE
 var condition: Dictionary = {}
 var active_formation: String = "4-4-2"
 var error_message: String = ""
 
-func initialize(team_id_value: String, roster_records: Array, bench_size: int = 7) -> bool:
+func initialize(team_id_value: String, roster_records: Array, bench_size: int = BENCH_SIZE, squad_rules: Dictionary = {}) -> bool:
 	_reset()
+	if squad_rules.has("max_roster_size"):
+		if typeof(squad_rules["max_roster_size"]) != TYPE_INT:
+			return _fail("Kadro üst sınırı tam sayı olmalıdır.")
+		max_roster_size = int(squad_rules["max_roster_size"])
+	elif squad_rules.has("max_a_team_players"):
+		if typeof(squad_rules["max_a_team_players"]) != TYPE_INT:
+			return _fail("Kadro üst sınırı tam sayı olmalıdır.")
+		max_roster_size = int(squad_rules["max_a_team_players"])
+	if squad_rules.has("bench_size"):
+		if typeof(squad_rules["bench_size"]) != TYPE_INT:
+			return _fail("Yedek kulübesi boyutu tam sayı olmalıdır.")
+		bench_size = int(squad_rules["bench_size"])
+	if max_roster_size < 11:
+		return _fail("A takım kadrosu ilk 11'den küçük olamaz.")
+	if bench_size < 0 or bench_size > max_roster_size - 11:
+		return _fail("Yedek kulübesi boyutu kadro sınırları dışında.")
+	bench_limit = bench_size
 	if team_id_value.is_empty():
 		return _fail("Kadro için takım kimliği boş olamaz.")
 	if roster_records.size() < 11:
 		return _fail("İlk 11 oluşturmak için en az 11 oyuncu gerekir.")
-	if bench_size < 0:
-		return _fail("Yedek kulübesi boyutu negatif olamaz.")
 
 	var new_roster: Array = []
 	var seen_ids: Dictionary = {}
@@ -53,8 +70,8 @@ func initialize(team_id_value: String, roster_records: Array, bench_size: int = 
 
 		seen_ids[player_id] = true
 		new_roster.append(record.duplicate(true))
-	if new_roster.size() > MAX_ROSTER_SIZE:
-		return _fail("A takım kadrosu %d oyuncuyla sınırlıdır." % MAX_ROSTER_SIZE)
+	if new_roster.size() > max_roster_size:
+		return _fail("A takım kadrosu %d oyuncuyla sınırlıdır." % max_roster_size)
 
 	var position_counts := _count_positions(new_roster)
 	for position in DEFAULT_STARTING_COUNTS:
@@ -66,7 +83,7 @@ func initialize(team_id_value: String, roster_records: Array, bench_size: int = 
 	for player in roster:
 		condition[String(player["id"])] = INITIAL_CONDITION
 	starting_ids = _build_default_starting_ids()
-	var effective_bench_size: int = min(bench_size, roster.size() - starting_ids.size())
+	var effective_bench_size: int = min(bench_limit, roster.size() - starting_ids.size())
 	for player in roster:
 		var player_id: String = String(player["id"])
 		if starting_ids.has(player_id):
@@ -81,8 +98,8 @@ func get_starting_xi() -> Array:
 	return _records_for_ids(starting_ids)
 
 func can_add_player(player_record: Dictionary) -> bool:
-	if roster.size() >= MAX_ROSTER_SIZE:
-		return _fail("A takım kadrosu %d oyuncuyla sınırlıdır." % MAX_ROSTER_SIZE)
+	if roster.size() >= max_roster_size:
+		return _fail("A takım kadrosu %d oyuncuyla sınırlıdır." % max_roster_size)
 	var player_id := String(player_record.get("id", ""))
 	var record_team_id := String(player_record.get("team_id", ""))
 	var position := String(player_record.get("position", ""))
@@ -100,7 +117,7 @@ func add_player(player_record: Dictionary) -> bool:
 	var player_id := String(player_record["id"])
 	roster.append(player_record.duplicate(true))
 	condition[player_id] = INITIAL_CONDITION
-	if bench_ids.size() < BENCH_SIZE:
+	if bench_ids.size() < bench_limit:
 		bench_ids.append(player_id)
 	error_message = ""
 	return true
@@ -187,6 +204,8 @@ func get_snapshot() -> Dictionary:
 	return {
 		"team_id": team_id,
 		"formation": active_formation,
+		"max_roster_size": max_roster_size,
+		"bench_size": bench_limit,
 		"roster": roster.duplicate(true),
 		"starting_ids": starting_ids.duplicate(),
 		"bench_ids": bench_ids.duplicate(),
@@ -203,6 +222,12 @@ func validate_snapshot(snapshot: Dictionary) -> bool:
 		candidate_roster = snapshot["roster"]
 		if not _validate_roster_records(candidate_roster, team_id):
 			return false
+	if snapshot.has("max_roster_size"):
+		if not _is_integer_number(snapshot["max_roster_size"]) or int(snapshot["max_roster_size"]) != max_roster_size:
+			return _fail("Kayıt kadro üst sınırı aktif kurallarla eşleşmiyor.")
+	if snapshot.has("bench_size"):
+		if not _is_integer_number(snapshot["bench_size"]) or int(snapshot["bench_size"]) != bench_limit:
+			return _fail("Kayıt yedek kulübesi boyutu aktif kurallarla eşleşmiyor.")
 	var saved_formation := String(snapshot.get("formation", "4-4-2"))
 	if not FormationRulesScript.is_supported(saved_formation):
 		return _fail("Kayıt kadrosunda geçersiz diziliş var: %s" % saved_formation)
@@ -217,6 +242,8 @@ func validate_snapshot(snapshot: Dictionary) -> bool:
 		return _fail("Kayıt ilk 11 için 11 oyuncu içermiyor.")
 	if saved_bench.size() > candidate_roster.size() - saved_starting.size():
 		return _fail("Kayıt yedek kulübesi mevcut kadrodan büyük.")
+	if saved_bench.size() > bench_limit:
+		return _fail("Kayıt yedek kulübesi aktif kurallardan büyük.")
 	var seen_ids: Dictionary = {}
 	for player_id in saved_starting + saved_bench:
 		var normalized_id: String = String(player_id)
@@ -262,6 +289,23 @@ func get_player_group(player_id: String) -> String:
 		if String(player["id"]) == player_id:
 			return "unselected"
 	return "unknown"
+func promote_to_bench(player_id: String, displaced_bench_id: String = "") -> bool:
+	error_message = ""
+	if get_player_group(player_id) != "unselected":
+		return _fail("Yalnızca kadro dışı oyuncu yedeğe alınabilir.")
+	if bench_ids.size() < bench_limit:
+		if not displaced_bench_id.is_empty():
+			return _fail("Dolu olmayan yedek kulübesinde değiştirilecek oyuncu yok.")
+		bench_ids.append(player_id)
+		return true
+	if displaced_bench_id.is_empty() or get_player_group(displaced_bench_id) != "bench":
+		return _fail("Dolu yedek kulübesinde geçerli bir oyuncu seçilmelidir.")
+	var displaced_index: int = bench_ids.find(displaced_bench_id)
+	if displaced_index < 0:
+		return _fail("Değiştirilecek yedek oyuncu bulunamadı.")
+	bench_ids[displaced_index] = player_id
+	return true
+
 
 func swap_players(first_player_id: String, second_player_id: String) -> bool:
 	error_message = ""
@@ -336,8 +380,8 @@ func _record_for_id(player_id: String) -> Dictionary:
 	return {}
 
 func _validate_roster_records(roster_records: Array, expected_team_id: String) -> bool:
-	if roster_records.size() < 11 or roster_records.size() > MAX_ROSTER_SIZE:
-		return _fail("Kayıt kadrosu 11-%d oyuncu arasında olmalıdır." % MAX_ROSTER_SIZE)
+	if roster_records.size() < 11 or roster_records.size() > max_roster_size:
+		return _fail("Kayıt kadrosu 11-%d oyuncu arasında olmalıdır." % max_roster_size)
 	var seen_ids: Dictionary = {}
 	for record in roster_records:
 		if typeof(record) != TYPE_DICTIONARY:
@@ -381,7 +425,14 @@ func _roster_has_id_in(player_id: String, source_roster: Array) -> bool:
 			return true
 	return false
 
+func _is_integer_number(value) -> bool:
+	if typeof(value) != TYPE_INT and typeof(value) != TYPE_FLOAT:
+		return false
+	return float(value) == round(float(value))
+
 func _reset() -> void:
+	max_roster_size = MAX_ROSTER_SIZE
+	bench_limit = BENCH_SIZE
 	team_id = ""
 	roster.clear()
 	starting_ids.clear()

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2026-09-11
+
+- Added a normalized `CompetitionRules` runtime contract sourced from `data/game_rules.json`, including season length, round count, squad limits, substitutions, and eligibility rules.
+- `DataPack` now validates rule metadata against the loaded schema and team/player counts before the game starts.
+- League, squad, UI, and save/load flows now consume dynamic season and squad limits instead of duplicating the default constants.
+- Full benches now expose an explicit reserves-to-bench promotion path for newly signed players; bench limits and roster limits persist in save payloads.
+- Save schema 5 now migrates schema 3/4 payloads while retaining season metadata, squad limits, condition state, and active formation.
+- Added `competition_rules_test.gd`; expanded squad, league, save, and main-scene smoke coverage. The local verifier now runs 10 Godot tests.
+- Windows export/package verification now passes the desktop preset as one argument, tolerates empty PowerShell wrapper exit-code fields when logs/artifacts/runtime are clean, and retries transient extraction cleanup locks.
+- Export/package evidence and the current SHA256 are recorded in `docs/RELEASE_EVIDENCE.md`.
+- Added a data-pack README entry describing the runtime rule normalization and bench limit.
+- Added the final release hardening decision and verification boundary to the agent knowledge base.
+
 ## [Unreleased]
 
 ### Added
@@ -24,7 +37,7 @@ All notable changes to this project will be documented in this file.
 - 34. hafta sonrasında şampiyon ve üç küme düşen takımı gösteren sezon sonu özeti eklendi.
 - Portable Windows ZIP paketleme ve taze klasörden paket runtime smoke doğrulaması eklendi.
 - SaveGame artık geçici dosya commit'i, `.bak` yedeği ve bozuk ana kayıttan geri dönüş raporlaması kullanıyor.
-- Haftalık ilk 11 kondisyon düşüşü, bench recovery, düşük kondisyon maç cezası ve save schema 3 -> 4 migration eklendi.
+- Haftalık ilk 11 kondisyon düşüşü, bench recovery, düşük kondisyon maç cezası ve ilk schema 3 -> 4 migration eklendi; güncel migration zinciri schema 5'e ilerler.
 - Tüm yerel test/export/package kontrollerini çalıştıran `verify_project.ps1` eklendi.
 - Son yerel release kanıtı, artifact hash'i ve public dağıtım sınırı `docs/RELEASE_EVIDENCE.md` içine kaydedildi.
 - Headless Godot tests for squad state and main-scene screen switching.

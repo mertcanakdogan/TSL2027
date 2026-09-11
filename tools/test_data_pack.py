@@ -88,6 +88,7 @@ class DataPackTests(unittest.TestCase):
         self.assertEqual(competition["matchday_squad_size"], 21)
         self.assertEqual(competition["max_substitutions"], 5)
         self.assertEqual(squad["max_a_team_players"], 28)
+        self.assertEqual(squad["bench_size"], 7)
         self.assertEqual(economy["initial_balance_base"], 12_000_000)
         self.assertEqual(economy["transfer_window_end_week"], 8)
         self.assertEqual(economy["max_roster_size"], 28)

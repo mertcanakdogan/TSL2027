@@ -8,8 +8,8 @@ tags: [godot, save-load, persistence, migration, data-pack]
 ## Summary
 
 `SaveGame` writes one inspectable JSON file to `user://tsl2027_save.json`. The
-payload stores a save schema version, active data schema version, managed team,
-league snapshot, starter/bench IDs, and a tactics snapshot.
+payload stores save schema 5, active data schema, normalized season metadata,
+managed team, league/squad/tactics/economy/transfer snapshots, and condition.
 
 ## Decision / Finding
 
@@ -18,7 +18,8 @@ league snapshot, starter/bench IDs, and a tactics snapshot.
 - Payload validation happens before league, squad, or tactics state is applied.
 - Missing, corrupt, unsupported save schema, and data-pack mismatch fail with an
   error message and do not mutate the current session.
-- The current implementation has one slot and no migration from future versions.
+- Schema 3 payloads receive default condition values; schema 4 payloads receive
+  normalized league season fields before validation under schema 5.
 
 ## References
 

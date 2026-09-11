@@ -2,8 +2,9 @@ class_name SaveGame
 extends RefCounted
 
 const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
-const SAVE_SCHEMA_VERSION := 4
+const SAVE_SCHEMA_VERSION := 5
 const LEGACY_SAVE_SCHEMA_VERSION := 3
+const PREVIOUS_SAVE_SCHEMA_VERSION := 4
 const TEMP_SUFFIX := ".tmp"
 const BACKUP_SUFFIX := ".bak"
 
@@ -79,22 +80,31 @@ func load_from_file(
 		return _fail(transfer.error_message)
 	last_payload = payload.duplicate(true)
 	return true
-
 func _migrate_payload(payload: Dictionary) -> Dictionary:
-	if int(payload.get("save_schema_version", -1)) != LEGACY_SAVE_SCHEMA_VERSION:
+	var schema_version := int(payload.get("save_schema_version", -1))
+	if schema_version != LEGACY_SAVE_SCHEMA_VERSION and schema_version != PREVIOUS_SAVE_SCHEMA_VERSION:
 		return payload
 	var migrated: Dictionary = payload.duplicate(true)
-	migrated["save_schema_version"] = SAVE_SCHEMA_VERSION
-	var squad_payload = migrated.get("squad_state", {})
-	if typeof(squad_payload) == TYPE_DICTIONARY and not squad_payload.has("condition"):
-		var condition_payload: Dictionary = {}
-		var roster = squad_payload.get("roster", [])
-		if typeof(roster) == TYPE_ARRAY:
-			for player in roster:
-				if typeof(player) == TYPE_DICTIONARY:
-					condition_payload[String(player.get("id", ""))] = 100
-		squad_payload["condition"] = condition_payload
-		migrated["squad_state"] = squad_payload
+	if schema_version == LEGACY_SAVE_SCHEMA_VERSION:
+		var squad_payload = migrated.get("squad_state", {})
+		if typeof(squad_payload) == TYPE_DICTIONARY and not squad_payload.has("condition"):
+			var condition_payload: Dictionary = {}
+			var roster = squad_payload.get("roster", [])
+			if typeof(roster) == TYPE_ARRAY:
+				for player in roster:
+					if typeof(player) == TYPE_DICTIONARY:
+						condition_payload[String(player.get("id", ""))] = 100
+			squad_payload["condition"] = condition_payload
+			migrated["squad_state"] = squad_payload
+		schema_version = PREVIOUS_SAVE_SCHEMA_VERSION
+	if schema_version == PREVIOUS_SAVE_SCHEMA_VERSION:
+		var league_payload = migrated.get("league_state", {})
+		if typeof(league_payload) == TYPE_DICTIONARY:
+			league_payload["season"] = String(league_payload.get("season", migrated.get("season", "2026-2027")))
+			league_payload["season_weeks"] = int(league_payload.get("season_weeks", 34))
+			league_payload["rounds"] = int(league_payload.get("rounds", 2))
+			migrated["league_state"] = league_payload
+		migrated["save_schema_version"] = SAVE_SCHEMA_VERSION
 	return migrated
 
 func _commit_temporary_save(path: String, temporary_path: String) -> bool:
@@ -127,7 +137,7 @@ func build_payload(league, squad, tactics, economy, transfer, data_schema_versio
 	return {
 		"save_schema_version": SAVE_SCHEMA_VERSION,
 		"data_schema_version": data_schema_version,
-		"season": "2026-2027",
+		"season": String(league.season_label),
 		"managed_team_id": squad.team_id,
 		"league_state": league.get_snapshot(),
 		"squad_state": squad.get_snapshot(),
@@ -186,6 +196,8 @@ func _validate_payload(
 		return _fail("Desteklenmeyen kayıt sürümü.")
 	if String(payload.get("data_schema_version", "")) != expected_data_schema_version:
 		return _fail("Kayıt veri paketi sürümüyle eşleşmiyor.")
+	if String(payload.get("season", "")) != String(league.season_label):
+		return _fail("Kayıt sezonu aktif kurallarla eşleşmiyor.")
 	if String(payload.get("managed_team_id", "")) != expected_team_id or squad.team_id != expected_team_id:
 		return _fail("Kayıt yönetilen takımla eşleşmiyor.")
 	if typeof(payload.get("league_state", null)) != TYPE_DICTIONARY or typeof(payload.get("squad_state", null)) != TYPE_DICTIONARY or typeof(payload.get("tactics_state", null)) != TYPE_DICTIONARY or typeof(payload.get("economy_state", null)) != TYPE_DICTIONARY or typeof(payload.get("transfer_state", null)) != TYPE_DICTIONARY:

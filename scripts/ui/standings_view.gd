@@ -23,7 +23,7 @@ func refresh() -> void:
 	if league_state == null or table_grid == null:
 		return
 	var rows: Array = league_state.get_table()
-	summary_label.text = "%d takım • %d. maç haftası" % [rows.size(), min(league_state.current_week - 1, 34)]
+	summary_label.text = "%d takım • %d/%d. maç haftası" % [rows.size(), min(league_state.current_week - 1, league_state.season_weeks), league_state.season_weeks]
 	for child in table_grid.get_children():
 		child.free()
 	for header in ["#", "Takım", "O", "G", "B", "M", "AV", "P"]:
@@ -45,7 +45,7 @@ func _build_ui() -> void:
 	var header := VBoxContainer.new()
 	add_child(header)
 	header.add_child(_make_label("Lig Tablosu", 24, COLOR_TEXT))
-	header.add_child(_make_label("Trendyol Süper Lig 2026/27 güncel puan durumu", 14, COLOR_MUTED))
+	header.add_child(_make_label("Trendyol Süper Lig %s güncel puan durumu" % league_state.season_label, 14, COLOR_MUTED))
 	summary_label = _make_label("Tablo yükleniyor", 13, COLOR_BLUE)
 	header.add_child(summary_label)
 

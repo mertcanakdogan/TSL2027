@@ -40,14 +40,7 @@ New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
 $runId = Get-Date -Format "yyyyMMddHHmmssfff"
 $stdoutPath = Join-Path ([System.IO.Path]::GetTempPath()) "TSL2027-export-$runId.stdout.log"
 $stderrPath = Join-Path ([System.IO.Path]::GetTempPath()) "TSL2027-export-$runId.stderr.log"
-$exportArguments = @(
-    "--headless",
-    "--path",
-    $ProjectPath,
-    "--export-release",
-    '"Windows Desktop"',
-    $OutputPath
-)
+$exportArguments = '--headless --path "{0}" --export-release "Windows Desktop" "{1}"' -f $ProjectPath, $OutputPath
 
 $exportProcess = Start-Process -FilePath $GodotPath -ArgumentList $exportArguments -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -PassThru
 $exportDeadline = (Get-Date).AddSeconds($ExportTimeoutSeconds)
@@ -62,8 +55,9 @@ if (-not $exportProcess.HasExited) {
 
 $exportStdout = if (Test-Path -LiteralPath $stdoutPath) { Get-Content -LiteralPath $stdoutPath -Raw } else { "" }
 $exportStderr = if (Test-Path -LiteralPath $stderrPath) { Get-Content -LiteralPath $stderrPath -Raw } else { "" }
-if ($exportProcess.ExitCode -ne 0) {
-    throw "Windows export başarısız oldu (exit $($exportProcess.ExitCode)).`n$exportStdout`n$exportStderr"
+$exportExitCode = $exportProcess.ExitCode
+if (($null -ne $exportExitCode -and $exportExitCode -ne 0) -or $exportStderr -match "ERROR:|SCRIPT ERROR") {
+    throw "Windows export başarısız oldu (exit $exportExitCode).`n$exportStdout`n$exportStderr"
 }
 if (-not (Test-Path -LiteralPath $OutputPath -PathType Leaf)) {
     throw "Export başarılı görünüyor fakat çıktı yok: $OutputPath"
@@ -81,10 +75,19 @@ if (-not $runtimeProcess.HasExited) {
     Stop-Process -Id $runtimeProcess.Id -Force -ErrorAction SilentlyContinue
     throw "Export edilen uygulama başlatıldı fakat kapanış smoke testi zaman aşımına uğradı. Loglar: $runtimeStdoutPath / $runtimeStderrPath"
 }
-if ($runtimeProcess.ExitCode -ne 0) {
-    $runtimeStdout = if (Test-Path -LiteralPath $runtimeStdoutPath) { Get-Content -LiteralPath $runtimeStdoutPath -Raw } else { "" }
-    $runtimeStderr = if (Test-Path -LiteralPath $runtimeStderrPath) { Get-Content -LiteralPath $runtimeStderrPath -Raw } else { "" }
-    throw "Export edilen uygulama smoke testte başarısız oldu (exit $($runtimeProcess.ExitCode)).`n$runtimeStdout`n$runtimeStderr"
+if (Test-Path -LiteralPath $runtimeStdoutPath) {
+    $runtimeStdout = Get-Content -LiteralPath $runtimeStdoutPath -Raw
+} else {
+    $runtimeStdout = ""
+}
+if (Test-Path -LiteralPath $runtimeStderrPath) {
+    $runtimeStderr = Get-Content -LiteralPath $runtimeStderrPath -Raw
+} else {
+    $runtimeStderr = ""
+}
+$runtimeExitCode = $runtimeProcess.ExitCode
+if (($null -ne $runtimeExitCode -and $runtimeExitCode -ne 0) -or $runtimeStderr -match "ERROR:|SCRIPT ERROR") {
+    throw "Export edilen uygulama smoke testte başarısız oldu (exit $runtimeExitCode).`n$runtimeStdout`n$runtimeStderr"
 }
 
 $artifact = Get-Item -LiteralPath $OutputPath

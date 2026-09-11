@@ -222,22 +222,31 @@ alır. Bağlam verilmezse mevcut takım gücü fallback'i korunur.
   döner.
 
 Bu değerler oyun tasarımı için sentetik prototip kurallarıdır; gerçek oyuncu
-kalitesi veya resmi rating iddiası değildir. Yorgunluk, kart, sakatlık,
-değişiklik ve olay pencereleri henüz bu bağlamın parçası değildir.
+kalitesi veya resmi rating iddiası değildir. Kondisyon, report-level kart ve
+oyuncu değişikliği olayları artık deterministik sonuç raporunda vardır; kalıcı
+kart/sakatlık/ceza ve in-match lineup mutation henüz state'e uygulanmaz.
 
 ## 7. Transfer ve ekonomi prototipi
 
 İlk transfer diliminde fiyat, maaş, başlangıç bütçesi ve haftalık gelir resmi
 kulüp finansmanı olarak modellenmez. `game_rules.json` içindeki ekonomi alanı
 oyun dengesi için sentetik bir sözleşmedir. Teklifler oyuncu attribute
-ortalamasından deterministik üretilir; imza işlemi bakiye, maaş bütçesi, 28
-kişilik kadro sınırı ve 1-8. hafta transfer penceresiyle doğrulanır.
+ortalamasından deterministik üretilir; imza işlemi normalize edilmiş kadro
+sınırı ve transfer penceresi kurallarıyla doğrulanır (mevcut pakette 28 ve
+1-8. hafta).
+Runtime `CompetitionRules`, `DataPack` yükleme sırasında JSON sözleşmesini
+normalize eder. `LeagueState`, `SquadState`, transfer penceresi, UI hafta
+etiketleri ve save validation aynı normalize edilmiş sezon/limit değerlerini
+kullanır; oyun çekirdeği artık sezon uzunluğunu doğrudan `34` sabitinden
+okumaz.
 
 `EconomyState`, sözleşmeleri ve haftalık tahsilatı; `TransferMarketState` ise
-teklif kataloğu ve işlem geçmişini sahiplenir. Bu iki state `SquadState` ile
-tek orchestrator üzerinden atomik güncellenir ve save schema 3'te birlikte
-saklanır. Satış, kiralık transfer, taksit, menajer komisyonu ve çok yıllı
-pazarlık sonraki bir aşamanın kapsamıdır.
+teklif kataloğu ve işlem geçmişini sahiplenir. `SquadState` başarılı transferi
+önce kadroya ekler; bench doluysa oyuncu `unselected` kalır ve UI'da seçilen
+bench oyuncusuyla atomik olarak yer değiştirilerek aktif bench'e alınır. Bu
+iki state `SquadState` ile tek orchestrator üzerinden atomik güncellenir ve
+save schema 5'te birlikte saklanır. Satış, kiralık transfer, taksit, menajer
+komisyonu ve çok yıllı pazarlık sonraki bir aşamanın kapsamıdır.
 
 ### Kayıt dayanıklılığı
 

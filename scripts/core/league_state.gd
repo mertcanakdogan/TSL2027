@@ -2,24 +2,41 @@ class_name LeagueState
 extends RefCounted
 
 const MatchEngineScript = preload("res://scripts/core/match_engine.gd")
+const CompetitionRulesScript = preload("res://scripts/core/competition_rules.gd")
 
 var teams: Array = []
 var standings: Dictionary = {}
 var fixtures: Array = []
+var season_label: String = CompetitionRulesScript.DEFAULT_SEASON
+var season_weeks: int = CompetitionRulesScript.DEFAULT_WEEKS
+var season_rounds: int = 2
 var current_week: int = 1
 var season_seed: int = 2026
 var team_contexts: Dictionary = {}
 var error_message: String = ""
 var match_engine = MatchEngineScript.new()
 
-func initialize(team_records: Array, seed_value: int = 2026, context_records: Dictionary = {}) -> void:
+func initialize(team_records: Array, seed_value: int = 2026, context_records: Dictionary = {}, competition_rules: Dictionary = {}) -> bool:
 	teams = team_records.duplicate(true)
 	standings.clear()
 	fixtures.clear()
 	team_contexts = context_records.duplicate(true)
 	current_week = 1
 	season_seed = seed_value
+	season_label = String(competition_rules.get("season", CompetitionRulesScript.DEFAULT_SEASON))
+	season_rounds = int(competition_rules.get("rounds", 2))
+	var default_weeks: int = max(1, (teams.size() - 1) * 2)
+	season_weeks = int(competition_rules.get("weeks", default_weeks))
 	error_message = ""
+
+	if teams.size() < 2 or teams.size() % 2 != 0:
+		return _fail("Lig fikstürü için çift sayıda en az iki takım gerekir.")
+	if competition_rules.has("team_count") and int(competition_rules["team_count"]) != teams.size():
+		return _fail("Kural takım sayısı lig takım listesiyle eşleşmiyor.")
+	if season_rounds != 2:
+		return _fail("Bu fikstür motoru iki devreli lig bekliyor.")
+	if season_weeks != season_rounds * (teams.size() - 1):
+		return _fail("Sezon hafta sayısı takım sayısı ve tur sayısıyla eşleşmiyor.")
 
 	for team in teams:
 		standings[String(team["id"])] = {
@@ -35,6 +52,7 @@ func initialize(team_records: Array, seed_value: int = 2026, context_records: Di
 		}
 
 	fixtures = _build_fixtures()
+	return true
 
 func _build_fixtures() -> Array:
 	var circle: Array = teams.duplicate(true)
@@ -77,11 +95,10 @@ func _build_fixtures() -> Array:
 			"played": false,
 			"result": {}
 		})
-
 	return all_fixtures
 
 func play_next_week() -> Array:
-	if current_week > 34:
+	if current_week > season_weeks:
 		return []
 
 	var weekly_results: Array = []
@@ -153,6 +170,9 @@ func set_team_context(team_id: String, context: Dictionary) -> bool:
 
 func get_snapshot() -> Dictionary:
 	return {
+		"season": season_label,
+		"season_weeks": season_weeks,
+		"rounds": season_rounds,
 		"current_week": current_week,
 		"season_seed": season_seed,
 		"teams": teams.duplicate(true),
@@ -162,7 +182,11 @@ func get_snapshot() -> Dictionary:
 	}
 
 func validate_snapshot(snapshot: Dictionary) -> bool:
-	if not _is_integer_number(snapshot.get("current_week", null)) or int(snapshot["current_week"]) < 1 or int(snapshot["current_week"]) > 35:
+	if String(snapshot.get("season", season_label)) != season_label:
+		return _fail("Kayıt sezonu aktif kurallarla eşleşmiyor.")
+	if int(snapshot.get("season_weeks", season_weeks)) != season_weeks or int(snapshot.get("rounds", season_rounds)) != season_rounds:
+		return _fail("Kayıt sezon kuralları aktif kurallarla eşleşmiyor.")
+	if not _is_integer_number(snapshot.get("current_week", null)) or int(snapshot["current_week"]) < 1 or int(snapshot["current_week"]) > season_weeks + 1:
 		return _fail("Kayıt maç haftası geçersiz.")
 	if not _is_integer_number(snapshot.get("season_seed", null)):
 		return _fail("Kayıt sezon seed değeri geçersiz.")
@@ -197,7 +221,7 @@ func validate_snapshot(snapshot: Dictionary) -> bool:
 			return _fail("Kayıt fikstüründe geçersiz maç var.")
 		if not fixture.has("id") or not fixture.has("week") or not fixture.has("home_id") or not fixture.has("away_id") or not fixture.has("played") or not fixture.has("result"):
 			return _fail("Kayıt fikstür maçı eksik alan içeriyor.")
-		if int(fixture["week"]) < 1 or int(fixture["week"]) > 34:
+		if int(fixture["week"]) < 1 or int(fixture["week"]) > season_weeks:
 			return _fail("Kayıt fikstür haftası geçersiz.")
 		if not active_team_ids.has(String(fixture["home_id"])) or not active_team_ids.has(String(fixture["away_id"])):
 			return _fail("Kayıt fikstürü bilinmeyen takım içeriyor.")
@@ -247,7 +271,7 @@ func _table_sorter(a: Dictionary, b: Dictionary) -> bool:
 	return int(a["strength"]) > int(b["strength"])
 
 func get_season_summary() -> Dictionary:
-	if current_week <= 34:
+	if current_week <= season_weeks:
 		return {}
 	var table: Array = get_table()
 	if table.is_empty():

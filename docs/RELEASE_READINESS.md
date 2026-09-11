@@ -9,6 +9,8 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 
 - [x] Godot 4 projesi açılıyor ve ana sahne yükleniyor.
 - [x] 18 takım, 34 hafta, 306 maç ve sentetik veri paketi doğrulanıyor.
+- [x] Runtime CompetitionRules sözleşmesiyle sezon haftası, kadro ve bench limitleri data pack'ten yükleniyor.
+- [x] Transfer edilen oyuncu için reserves → bench → formasyon uyumlu ilk 11 akışı.
 - [x] Kadro state'i ve starter/bench değişimi headless testlerle doğrulanıyor.
 - [x] Taktikler state'i ve ekranı doğrulanıyor.
 - [x] Yönetilen ilk 11 ve taktik state'i deterministik maç profiline/xG'ye
@@ -21,7 +23,7 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 - [x] Sürümlü save/load, aktif formasyonun saklanması, uyumsuz kayıt reddi ve
   temporary-write/backup recovery.
 - [x] Haftalık managed-player kondisyon düşüşü, bench recovery, maç profili
-  etkisi ve schema 3 -> 4 migration.
+  etkisi ve schema 3/4 -> 5 migration.
 - [x] Fikstür ve lig tablosu ekranlarının placeholder olmaktan çıkarılması.
 - [x] Transfer ekranının sentetik ekonomi, maaş bütçesi, sözleşme ve imza state'iyle gerçek hale gelmesi.
 - [x] Deterministik temel maç olayları, skorla tutarlı gol olayları ve maç istatistikleri.
@@ -29,8 +31,8 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
   açılış/kapanış smoke testi.
 - [x] Portable Windows ZIP paketi ve taze geçici klasörden paket runtime smoke
   testi.
-- [x] Tek komutlu yerel doğrulama: 9 Godot testi, editor parse, Python veri
-  kontrolleri ve Windows release zinciri.
+- [x] Son kural/kadro dilimi sonrası 10 Godot testi, editor parse, Python veri
+  kontrolleri ve Windows release zinciri yeniden çalıştırıldı.
 - [ ] Temiz makinede açılış, temel kullanıcı akışı, installer ve code-signing
   testi.
 - [x] Credits, lisans sınırları, sentetik veri bildirimi ve kullanıcıya görünür

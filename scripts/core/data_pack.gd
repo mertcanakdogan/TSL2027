@@ -1,9 +1,11 @@
 class_name DataPack
 extends RefCounted
+const CompetitionRulesScript = preload("res://scripts/core/competition_rules.gd")
 
 var teams: Array = []
 var players: Array = []
 var rules: Dictionary = {}
+var competition_rules
 var players_by_team: Dictionary = {}
 var schema_version: String = ""
 var error_message: String = ""
@@ -28,10 +30,22 @@ func load_from_files(team_path: String, player_path: String, rules_path: String)
 	if not rules_payload.has("competition") or not rules_payload.has("squad") or not rules_payload.has("economy"):
 		return _fail("Kural veri paketi competition, squad ve economy bölümlerini içermiyor.")
 
+	var parsed_rules = CompetitionRulesScript.new()
+	if not parsed_rules.initialize(rules_payload):
+		return _fail(parsed_rules.error_message)
+	var expected_schema := String(player_payload.get("schema_version", ""))
+	var expected_season := String(player_payload.get("season", ""))
+	if String(team_payload.get("schema_version", "")) != expected_schema or String(rules_payload.get("schema_version", "")) != expected_schema:
+		return _fail("Veri paketi schema sürümleri eşleşmiyor.")
+	if String(team_payload.get("season", "")) != expected_season or String(rules_payload.get("season", "")) != expected_season:
+		return _fail("Veri paketi sezon kimlikleri eşleşmiyor.")
+
 	teams = team_payload["teams"].duplicate(true)
 	players = player_payload["players"].duplicate(true)
 	rules = rules_payload.duplicate(true)
-	schema_version = String(player_payload.get("schema_version", "unknown"))
+	schema_version = expected_schema
+	if parsed_rules.team_count != teams.size():
+		return _fail("Kural takım sayısı veri paketindeki takımlarla eşleşmiyor.")
 
 	for team in teams:
 		if typeof(team) != TYPE_DICTIONARY or not team.has("id"):
@@ -45,6 +59,8 @@ func load_from_files(team_path: String, player_path: String, rules_path: String)
 		if not players_by_team.has(team_id):
 			return _fail("Oyuncu bilinmeyen takıma bağlı: %s" % team_id)
 		players_by_team[team_id].append(player)
+	competition_rules = parsed_rules
+
 
 	return true
 
@@ -72,6 +88,7 @@ func _read_payload(path: String) -> Dictionary:
 func _reset() -> void:
 	teams.clear()
 	players.clear()
+	competition_rules = null
 	rules.clear()
 	players_by_team.clear()
 	schema_version = ""
