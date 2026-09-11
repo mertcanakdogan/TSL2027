@@ -26,6 +26,7 @@
 - İki oyuncuya sırayla basarak starter/bench değişimi
 - Açık değer sözleşmesine sahip Taktikler ekranı
 - Diziliş, zihniyet, markaj ve 0–100 taktik yoğunluklarının oturum state'i
+- Yönetilen ilk 11 ve taktik state'inin deterministik maç profili/xG modeline bağlanması
 
 ## Faz 1: Veri sözleşmesi — sıradaki işler
 
@@ -47,9 +48,10 @@
 
 ## Faz 3: Maç motoru
 
-- Oyuncu özelliklerinin simülasyona dahil edilmesi
-- Taktik eşleşmeleri
-- Taktik state değerlerinin deterministik maç etkilerine bağlanması
+- Yönetilen takımın seçili ilk 11 attribute ortalamasının maç profiline dahil edilmesi (ilk prototip)
+- Taktik state değerlerinin deterministik hücum, savunma ve kontrol profillerine bağlanması (ilk prototip)
+- Oyuncu özelliklerinin tüm lig takımlarına ve maç olaylarına genişletilmesi
+- Taktik eşleşmeleri ve pozisyon/rol uygunluğu
 - Yorgunluk ve fikstür yoğunluğu
 - Oyuncu değişiklikleri
 - Kart ve sakatlık olayları

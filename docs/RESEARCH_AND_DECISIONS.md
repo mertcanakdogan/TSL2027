@@ -207,6 +207,24 @@ Taktiklerin etkisi tamamen doğrusal olmayacak. Örneğin yüksek pres, zayıf r
 
 Bu model nihai simülasyon değildir. Avantajı, aynı seed ile aynı haftanın tekrar üretilebilmesi ve hataların test edilebilmesidir. Daha sonra takım taktiği, oyuncu seçimi, yorgunluk, moral, sakatlık ve form eklenecek.
 
+### İlk bağlamlı maç profili
+
+İlk yönetilen takım diliminde `MatchEngine`, `SquadState` içindeki seçili ilk
+11'i ve `TacticsState.get_snapshot()` çıktısını opsiyonel bir bağlam olarak
+alır. Bağlam verilmezse mevcut takım gücü fallback'i korunur.
+
+- İlk 11 gücü, seçili oyuncuların mevcut sentetik attribute ortalamasıdır.
+- Etkin temel güç, takım gücü ile ilk 11 gücünün `%35` blend'idir.
+- Zihniyet ve 0–100 değerleri açık sabitlerle hücum, savunma ve kontrol
+  profillerine etki eder.
+- İç saha avantajı ve rastgele varyans seed ile deterministik kalır.
+- Sonuçta profiller, xG ve topa sahip olma test edilebilir alanlar olarak
+  döner.
+
+Bu değerler oyun tasarımı için sentetik prototip kurallarıdır; gerçek oyuncu
+kalitesi veya resmi rating iddiası değildir. Yorgunluk, kart, sakatlık,
+değişiklik ve olay pencereleri henüz bu bağlamın parçası değildir.
+
 ## 7. Gerçek sezon kuralları
 
 TFF'nin 2026-2027 Süper Lig statüsüne göre:

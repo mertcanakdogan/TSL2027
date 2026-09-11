@@ -4,4 +4,5 @@
 |------|------|-------|---------|
 | 2026-09-11 | decision | [Deterministic synthetic data pack](./phase1-data-pack.md) | The first squad/data slice uses generated, license-safe JSON and a runtime loader instead of a live provider. |
 | 2026-09-11 | decision | [Lineup state boundary](./squad-state-boundary.md) | Mutable starter/bench selection stays in SquadState and never mutates the immutable DataPack records. |
-| 2026-09-11 | decision | [Tactics state boundary](./tactics-state-boundary.md) | Tactical intent is validated in a separate TacticsState; UI controls do not claim match-engine effects before scenario tests exist. |
+| 2026-09-11 | decision | [Tactics state boundary](./tactics-state-boundary.md) | Tactical intent is validated in a separate TacticsState; the managed context now reaches the profile engine while event effects remain future work. |
+| 2026-09-11 | decision | [Match context boundary](./match-context-boundary.md) | Managed XI and tactical snapshots enter MatchEngine through copied optional contexts with deterministic, inspectable profile modifiers. |

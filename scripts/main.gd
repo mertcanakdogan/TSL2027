@@ -61,6 +61,7 @@ func _ready() -> void:
 		return
 	league = LeagueStateScript.new()
 	league.initialize(team_records, 2026)
+	_sync_managed_context()
 	data_status_label.text = "%d takım • %d sentetik oyuncu • şema %s" % [
 		data_pack.teams.size(),
 		data_pack.players.size(),
@@ -283,6 +284,7 @@ func _render_table(rows: Array) -> void:
 		_add_table_cell(str(row["points"]), false)
 
 func _on_play_week_pressed() -> void:
+	_sync_managed_context()
 	var week_to_play: int = league.current_week
 	var results: Array = league.play_next_week()
 
@@ -306,6 +308,14 @@ func _on_play_week_pressed() -> void:
 
 	result_label.text = "\n".join(lines)
 	_refresh_ui()
+
+func _sync_managed_context() -> void:
+	if league == null or squad_state == null or tactics_state == null:
+		return
+	league.set_team_context(USER_TEAM_ID, {
+		"starting_xi": squad_state.get_starting_xi(),
+		"tactics": tactics_state.get_snapshot()
+	})
 
 func _show_dashboard() -> void:
 	_set_screen("dashboard")

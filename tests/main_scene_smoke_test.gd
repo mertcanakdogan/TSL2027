@@ -40,9 +40,14 @@ func _run() -> void:
 	_check(dashboard_nodes[0].visible, "dashboard action should show dashboard nodes")
 
 	var league = scene.get("league")
+	var registered_context: Dictionary = league.team_contexts.get("kocaelispor", {})
+	_check(registered_context.has("starting_xi"), "main scene should register managed starting XI context")
+	_check(registered_context["starting_xi"].size() == 11, "managed context should contain 11 players")
+	_check(String(registered_context["tactics"]["formation"]) == "4-3-3", "managed context should carry current tactics")
 	var initial_week: int = int(league.current_week)
 	scene.call("_on_play_week_pressed")
 	_check(int(league.current_week) == initial_week + 1, "weekly simulation should still advance one week")
+	_check(league.fixtures[0]["result"].has("home_attack_strength"), "weekly result should include match profiles")
 
 	scene.queue_free()
 	if failures.is_empty():

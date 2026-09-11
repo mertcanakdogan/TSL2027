@@ -10,10 +10,11 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 - [x] Godot 4 projesi açılıyor ve ana sahne yükleniyor.
 - [x] 18 takım, 34 hafta, 306 maç ve sentetik veri paketi doğrulanıyor.
 - [x] Kadro state'i ve starter/bench değişimi headless testlerle doğrulanıyor.
-- [x] Taktikler state'i ve ekranı doğrulanıyor; değerler henüz maç motoruna
-  bağlanmış kabul edilmiyor.
+- [x] Taktikler state'i ve ekranı doğrulanıyor.
+- [x] Yönetilen ilk 11 ve taktik state'i deterministik maç profiline/xG'ye
+  bağlanıyor; sentetik prototip formülü test ediliyor.
 - [ ] Takım seçimi ve yeni oyun akışı.
-- [ ] Formasyon/rol uygunluğu ve oyuncu attribute'larının maç motoruna etkisi.
+- [ ] Formasyon/rol uygunluğu ve tüm lig takımlarında oyuncu attribute etkisi.
 - [ ] Taktik etkileri, maç olayları ve maç istatistikleri için deterministik
   senaryolar.
 - [ ] Save/load, veri paketi sürümü ve bozuk kayıt kurtarma davranışı.

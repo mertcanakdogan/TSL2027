@@ -8,12 +8,14 @@ var standings: Dictionary = {}
 var fixtures: Array = []
 var current_week: int = 1
 var season_seed: int = 2026
+var team_contexts: Dictionary = {}
 var match_engine = MatchEngineScript.new()
 
-func initialize(team_records: Array, seed_value: int = 2026) -> void:
+func initialize(team_records: Array, seed_value: int = 2026, context_records: Dictionary = {}) -> void:
 	teams = team_records.duplicate(true)
 	standings.clear()
 	fixtures.clear()
+	team_contexts = context_records.duplicate(true)
 	current_week = 1
 	season_seed = seed_value
 
@@ -93,7 +95,9 @@ func play_next_week() -> Array:
 		var away: Dictionary = get_team(String(fixture["away_id"]))
 		var seed_value: int = season_seed + (current_week * 100) + match_index
 
-		var result: Dictionary = match_engine.simulate(home, away, seed_value)
+		var home_context: Dictionary = team_contexts.get(String(fixture["home_id"]), {})
+		var away_context: Dictionary = team_contexts.get(String(fixture["away_id"]), {})
+		var result: Dictionary = match_engine.simulate(home, away, seed_value, home_context, away_context)
 		fixture["played"] = true
 		fixture["result"] = result
 		_apply_result(String(fixture["home_id"]), String(fixture["away_id"]), result)
@@ -138,6 +142,12 @@ func get_team(team_id: String) -> Dictionary:
 		if String(team["id"]) == team_id:
 			return team
 	return {}
+
+func set_team_context(team_id: String, context: Dictionary) -> bool:
+	if not standings.has(team_id):
+		return false
+	team_contexts[team_id] = context.duplicate(true)
+	return true
 
 func get_table() -> Array:
 	var rows: Array = []
