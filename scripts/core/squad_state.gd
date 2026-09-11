@@ -1,6 +1,8 @@
 class_name SquadState
 extends RefCounted
 
+const FormationRulesScript = preload("res://scripts/core/formation_rules.gd")
+
 const DEFAULT_STARTING_COUNTS := {
 	"GK": 1,
 	"DF": 4,
@@ -13,6 +15,7 @@ var team_id: String = ""
 var roster: Array = []
 var starting_ids: Array = []
 var bench_ids: Array = []
+var active_formation: String = "4-4-2"
 var error_message: String = ""
 
 func initialize(team_id_value: String, roster_records: Array, bench_size: int = 7) -> bool:
@@ -66,6 +69,59 @@ func initialize(team_id_value: String, roster_records: Array, bench_size: int = 
 func get_starting_xi() -> Array:
 	return _records_for_ids(starting_ids)
 
+func get_starting_position_counts() -> Dictionary:
+	return _position_counts_for_ids(starting_ids)
+
+func get_active_formation() -> String:
+	return active_formation
+
+func get_formation_requirements(formation: String) -> Dictionary:
+	return FormationRulesScript.get_requirements(formation)
+
+func can_apply_formation(formation: String) -> bool:
+	return _validate_roster_for_formation(formation)
+
+func apply_formation(formation: String) -> bool:
+	if not _validate_roster_for_formation(formation):
+		return false
+
+	var requirements: Dictionary = get_formation_requirements(formation)
+	var new_starting_ids: Array = []
+	var selected_counts: Dictionary = {}
+	var candidates: Array = starting_ids.duplicate()
+	for player in roster:
+		var player_id := String(player["id"])
+		if not candidates.has(player_id):
+			candidates.append(player_id)
+
+	for player_id in candidates:
+		var player := _record_for_id(player_id)
+		if player.is_empty():
+			continue
+		var position := String(player["position"])
+		var selected_for_position := int(selected_counts.get(position, 0))
+		if selected_for_position >= int(requirements.get(position, 0)):
+			continue
+		new_starting_ids.append(player_id)
+		selected_counts[position] = selected_for_position + 1
+
+	if new_starting_ids.size() != 11:
+		return _fail("%s için ilk 11 oluşturulamadı." % formation)
+
+	var target_bench_size: int = min(bench_ids.size(), roster.size() - new_starting_ids.size())
+	var new_bench_ids: Array = []
+	for player in roster:
+		var player_id := String(player["id"])
+		if new_starting_ids.has(player_id) or new_bench_ids.size() >= target_bench_size:
+			continue
+		new_bench_ids.append(player_id)
+
+	starting_ids = new_starting_ids
+	bench_ids = new_bench_ids
+	active_formation = formation
+	error_message = ""
+	return true
+
 func get_bench() -> Array:
 	return _records_for_ids(bench_ids)
 
@@ -75,6 +131,7 @@ func get_roster() -> Array:
 func get_snapshot() -> Dictionary:
 	return {
 		"team_id": team_id,
+		"formation": active_formation,
 		"starting_ids": starting_ids.duplicate(),
 		"bench_ids": bench_ids.duplicate()
 	}
@@ -82,6 +139,9 @@ func get_snapshot() -> Dictionary:
 func validate_snapshot(snapshot: Dictionary) -> bool:
 	if not snapshot.has("team_id") or String(snapshot["team_id"]) != team_id:
 		return _fail("Kayıt takımı mevcut kadroyla eşleşmiyor.")
+	var saved_formation := String(snapshot.get("formation", "4-4-2"))
+	if not FormationRulesScript.is_supported(saved_formation):
+		return _fail("Kayıt kadrosunda geçersiz diziliş var: %s" % saved_formation)
 	if typeof(snapshot.get("starting_ids", null)) != TYPE_ARRAY or typeof(snapshot.get("bench_ids", null)) != TYPE_ARRAY:
 		return _fail("Kadro kaydında starter/bench listesi bulunmuyor.")
 	var saved_starting: Array = snapshot["starting_ids"]
@@ -98,11 +158,14 @@ func validate_snapshot(snapshot: Dictionary) -> bool:
 		if not _roster_has_id(normalized_id):
 			return _fail("Kayıt oyuncusu mevcut kadroda bulunmuyor: %s" % normalized_id)
 		seen_ids[normalized_id] = true
+	if _position_counts_for_ids(saved_starting) != get_formation_requirements(saved_formation):
+		return _fail("Kayıt ilk 11'i diziliş pozisyonlarıyla eşleşmiyor.")
 	return true
 
 func restore_snapshot(snapshot: Dictionary) -> bool:
 	if not validate_snapshot(snapshot):
 		return false
+	active_formation = String(snapshot.get("formation", "4-4-2"))
 	starting_ids = snapshot["starting_ids"].duplicate()
 	bench_ids = snapshot["bench_ids"].duplicate()
 	error_message = ""
@@ -132,12 +195,20 @@ func swap_players(first_player_id: String, second_player_id: String) -> bool:
 	if first_group == "starting":
 		var starting_index: int = starting_ids.find(first_player_id)
 		var bench_index: int = bench_ids.find(second_player_id)
-		starting_ids[starting_index] = second_player_id
+		var next_starting_ids: Array = starting_ids.duplicate()
+		next_starting_ids[starting_index] = second_player_id
+		if _position_counts_for_ids(next_starting_ids) != get_formation_requirements(active_formation):
+			return _fail("Değişim %s dizilişinin pozisyon dağılımını bozuyor." % active_formation)
+		starting_ids = next_starting_ids
 		bench_ids[bench_index] = first_player_id
 	else:
 		var starting_index: int = starting_ids.find(second_player_id)
 		var bench_index: int = bench_ids.find(first_player_id)
-		starting_ids[starting_index] = first_player_id
+		var next_starting_ids: Array = starting_ids.duplicate()
+		next_starting_ids[starting_index] = first_player_id
+		if _position_counts_for_ids(next_starting_ids) != get_formation_requirements(active_formation):
+			return _fail("Değişim %s dizilişinin pozisyon dağılımını bozuyor." % active_formation)
+		starting_ids = next_starting_ids
 		bench_ids[bench_index] = second_player_id
 
 	return true
@@ -156,11 +227,31 @@ func _build_default_starting_ids() -> Array:
 	return selected
 
 func _count_positions(players: Array) -> Dictionary:
-	var counts: Dictionary = {}
+	var counts: Dictionary = {"GK": 0, "DF": 0, "MF": 0, "FW": 0}
 	for player in players:
 		var position: String = String(player.get("position", ""))
 		counts[position] = int(counts.get(position, 0)) + 1
 	return counts
+
+func _position_counts_for_ids(player_ids: Array) -> Dictionary:
+	var players: Array = _records_for_ids(player_ids)
+	return _count_positions(players)
+
+func _validate_roster_for_formation(formation: String) -> bool:
+	if not FormationRulesScript.is_supported(formation):
+		return _fail("Geçersiz diziliş: %s" % formation)
+	var requirements: Dictionary = get_formation_requirements(formation)
+	var roster_counts := _count_positions(roster)
+	for position in FormationRulesScript.POSITION_ORDER:
+		if int(roster_counts.get(position, 0)) < int(requirements.get(position, 0)):
+			return _fail("%s için %s pozisyonunda yeterli oyuncu yok." % [formation, position])
+	return true
+
+func _record_for_id(player_id: String) -> Dictionary:
+	for player in roster:
+		if String(player.get("id", "")) == player_id:
+			return player
+	return {}
 
 func _records_for_ids(player_ids: Array) -> Array:
 	var records: Array = []
@@ -182,6 +273,7 @@ func _reset() -> void:
 	roster.clear()
 	starting_ids.clear()
 	bench_ids.clear()
+	active_formation = "4-4-2"
 	error_message = ""
 
 func _fail(message: String) -> bool:

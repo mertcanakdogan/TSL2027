@@ -9,3 +9,4 @@
 | 2026-09-11 | decision | [League views boundary](./league-views-boundary.md) | Fixture and standings screens remain read-only views over copied fixtures and LeagueState table data. |
 | 2026-09-11 | decision | [Save game boundary](./save-game-boundary.md) | Versioned JSON stores runtime IDs/state under user storage and validates before any restore mutation. |
 | 2026-09-11 | decision | [Team selection boundary](./team-selection-boundary.md) | One dynamic managed-team ID drives explicit new-career resets and all managed views. |
+| 2026-09-11 | decision | [Formation and lineup boundary](./formation-lineup-boundary.md) | Centralized formation counts drive explicit lineup application and a save invariant. |

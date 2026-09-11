@@ -1,6 +1,8 @@
 class_name TacticsView
 extends VBoxContainer
 
+signal formation_apply_requested(formation: String)
+
 const COLOR_PANEL := Color(0.090196, 0.105882, 0.137255, 1.0)
 const COLOR_PANEL_ALT := Color(0.121569, 0.137255, 0.172549, 1.0)
 const COLOR_ACCENT := Color(0.87451, 0.168627, 0.164706, 1.0)
@@ -35,6 +37,7 @@ var team_name: String = "Kocaelispor"
 var formation_option: OptionButton
 var mentality_option: OptionButton
 var marking_option: OptionButton
+var apply_formation_button: Button
 var parameter_sliders: Dictionary = {}
 var parameter_values: Dictionary = {}
 var feedback_label: Label
@@ -74,6 +77,11 @@ func _build_ui() -> void:
 	for formation in tactics_state.FORMATIONS:
 		formation_option.add_item(String(formation))
 	formation_option.item_selected.connect(_on_formation_selected)
+	apply_formation_button = Button.new()
+	apply_formation_button.text = "Dizilişi Kadroya Uygula"
+	apply_formation_button.custom_minimum_size = Vector2(0, 38)
+	apply_formation_button.pressed.connect(_on_apply_formation_pressed)
+	choices.add_child(apply_formation_button)
 
 	mentality_option = _add_option_row(choices, "Zihniyet")
 	for mentality in tactics_state.MENTALITIES:
@@ -139,6 +147,7 @@ func _refresh_ui() -> void:
 	if tactics_state == null:
 		return
 	formation_option.select(tactics_state.FORMATIONS.find(tactics_state.formation))
+	apply_formation_button.disabled = true
 	mentality_option.select(tactics_state.MENTALITIES.find(tactics_state.mentality))
 	marking_option.select(tactics_state.MARKING_APPROACHES.find(tactics_state.marking_approach))
 	for parameter in tactics_state.NUMERIC_PARAMETERS:
@@ -147,11 +156,24 @@ func _refresh_ui() -> void:
 		parameter_values[parameter].text = str(value)
 
 func _on_formation_selected(index: int) -> void:
+	if index < 0 or index >= tactics_state.FORMATIONS.size():
+		return
+	formation_option.select(index)
 	var value: String = String(tactics_state.FORMATIONS[index])
-	if tactics_state.set_formation(value):
-		feedback_label.text = "Diziliş güncellendi: %s" % value
-	else:
-		feedback_label.text = tactics_state.error_message
+	apply_formation_button.disabled = value == tactics_state.formation
+	feedback_label.text = "Taslak diziliş %s. Kadroya geçirmek için uygula." % value
+
+func _on_apply_formation_pressed() -> void:
+	var selected_index: int = formation_option.selected
+	if selected_index < 0 or selected_index >= tactics_state.FORMATIONS.size():
+		return
+	var value: String = String(tactics_state.FORMATIONS[selected_index])
+	if value == tactics_state.formation:
+		return
+	formation_apply_requested.emit(value)
+
+func apply_formation_result(success: bool, message: String) -> void:
+	feedback_label.text = message
 	_refresh_ui()
 
 func _on_mentality_selected(index: int) -> void:

@@ -2,7 +2,7 @@ class_name SaveGame
 extends RefCounted
 
 const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
-const SAVE_SCHEMA_VERSION := 1
+const SAVE_SCHEMA_VERSION := 2
 
 var error_message: String = ""
 var last_payload: Dictionary = {}
@@ -103,6 +103,9 @@ func _validate_payload(
 	var tactics_probe = TacticsStateScript.new()
 	if not tactics_probe.initialize(payload["tactics_state"]):
 		return _fail(tactics_probe.error_message)
+	var saved_formation := String(payload["squad_state"].get("formation", "4-4-2"))
+	if saved_formation != tactics_probe.formation:
+		return _fail("Kayıt kadro ve taktik dizilişiyle eşleşmiyor.")
 	return true
 
 func _is_user_path(path: String) -> bool:

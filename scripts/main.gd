@@ -282,6 +282,7 @@ func _build_ui() -> void:
 	content.add_child(squad_view)
 	tactics_view = TacticsViewScript.new()
 	tactics_view.visible = false
+	tactics_view.formation_apply_requested.connect(_on_formation_apply_requested)
 	content.add_child(tactics_view)
 	fixture_view = FixtureViewScript.new()
 	fixture_view.visible = false
@@ -431,6 +432,25 @@ func _show_team_selection() -> void:
 func _on_new_career_requested(selected_team_id: String) -> void:
 	if _start_new_career(selected_team_id):
 		result_label.text = "%s ile yeni kariyer başladı." % managed_team_name
+
+func _on_formation_apply_requested(formation: String) -> void:
+	if not squad_state.can_apply_formation(formation):
+		tactics_view.apply_formation_result(false, squad_state.error_message)
+		return
+	var previous_squad: Dictionary = squad_state.get_snapshot()
+	var previous_tactics: Dictionary = tactics_state.get_snapshot()
+	if not squad_state.apply_formation(formation):
+		tactics_view.apply_formation_result(false, squad_state.error_message)
+		return
+	if not tactics_state.set_formation(formation):
+		squad_state.restore_snapshot(previous_squad)
+		tactics_state.initialize(previous_tactics)
+		_sync_managed_context()
+		tactics_view.apply_formation_result(false, tactics_state.error_message)
+		return
+	_sync_managed_context()
+	squad_view.setup(squad_state, managed_team_name)
+	tactics_view.apply_formation_result(true, "Diziliş ve ilk 11 güncellendi: %s" % formation)
 
 func _show_tactics() -> void:
 	_set_screen("tactics")

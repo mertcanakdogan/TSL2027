@@ -1,7 +1,8 @@
 class_name TacticsState
 extends RefCounted
 
-const FORMATIONS := ["4-4-2", "4-3-3", "4-2-3-1", "3-5-2", "5-3-2"]
+const FormationRulesScript = preload("res://scripts/core/formation_rules.gd")
+const FORMATIONS := FormationRulesScript.FORMATIONS
 const MENTALITIES := ["cautious", "balanced", "positive", "attacking"]
 const MARKING_APPROACHES := ["zonal", "man_oriented"]
 const NUMERIC_PARAMETERS := [
