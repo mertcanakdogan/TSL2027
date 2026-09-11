@@ -2,6 +2,7 @@
 .import/
 .export/
 build/
+dist/
 .vscode/
 .idea/
 .DS_Store

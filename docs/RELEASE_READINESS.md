@@ -24,6 +24,8 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 - [x] Deterministik temel maç olayları, skorla tutarlı gol olayları ve maç istatistikleri.
 - [x] Windows Desktop export ve paketlenmiş executable'ın yerel headless
   açılış/kapanış smoke testi.
+- [x] Portable Windows ZIP paketi ve taze geçici klasörden paket runtime smoke
+  testi.
 - [ ] Temiz makinede açılış, temel kullanıcı akışı, installer ve code-signing
   testi.
 - [x] Credits, lisans sınırları, sentetik veri bildirimi ve kullanıcıya görünür
