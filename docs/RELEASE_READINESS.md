@@ -22,7 +22,10 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 - [x] Fikstür ve lig tablosu ekranlarının placeholder olmaktan çıkarılması.
 - [x] Transfer ekranının sentetik ekonomi, maaş bütçesi, sözleşme ve imza state'iyle gerçek hale gelmesi.
 - [x] Deterministik temel maç olayları, skorla tutarlı gol olayları ve maç istatistikleri.
-- [ ] Windows export, temiz makinede açılış ve temel kullanıcı akışı smoke testi.
+- [x] Windows Desktop export ve paketlenmiş executable'ın yerel headless
+  açılış/kapanış smoke testi.
+- [ ] Temiz makinede açılış, temel kullanıcı akışı, installer ve code-signing
+  testi.
 - [ ] Credits, lisans sınırları, sentetik veri bildirimi ve kullanıcıya görünür
   veri politikası.
 

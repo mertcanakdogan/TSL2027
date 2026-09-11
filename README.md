@@ -35,6 +35,17 @@ Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez
 
 Ana ekran açıldığında "Haftayı Oynat" butonu o haftadaki 9 maçı simüle eder ve puan durumunu günceller.
 
+Windows için yerel export ve paketlenmiş uygulama smoke testi:
+
+```powershell
+.\tools\verify_windows_export.ps1 -GodotPath "C:\path\to\Godot_v4.7.2-stable_win64.exe"
+```
+
+Komut `build/TSL2027.exe` üretir, ardından export edilen uygulamayı headless
+modda başlatıp temiz biçimde kapanabildiğini doğrular. `build/` ve geçici loglar
+Git'e eklenmez. Temiz bir bilgisayar, imza ve installer testi bu yerel kontrolden
+ayrı bir yayın kapısıdır.
+
 Veri paketi kontrolü için:
 
 ```powershell
@@ -45,6 +56,8 @@ godot --headless --path . --script res://tests/squad_state_test.gd
 godot --headless --path . --script res://tests/tactics_state_test.gd
 godot --headless --path . --script res://tests/match_engine_test.gd
 godot --headless --path . --script res://tests/league_views_test.gd
+godot --headless --path . --script res://tests/economy_state_test.gd
+godot --headless --path . --script res://tests/transfer_market_test.gd
 godot --headless --path . --script res://tests/save_game_test.gd
 godot --headless --path . --script res://tests/main_scene_smoke_test.gd
 ```
@@ -66,7 +79,6 @@ oluşacağı için ilk aşamada ağır 3D motor veya düşük seviyeli C++ kodu 
 - `data/`: Örnek ve ileride dönüştürülmüş oyun verileri
 - `docs/`: Araştırma, lisans politikası ve yol haritası
 - `scenes/`: Godot sahneleri
-- `scripts/core/`: Veri paketi, fikstür, lig, taktik ve maç simülasyonu
 - `scripts/core/`: Veri paketi, fikstür, lig, taktik, ekonomi, transfer ve maç simülasyonu
 - `scripts/`: Godot arayüz kodu
 - `tools/`: Harici veri doğrulama araçları
