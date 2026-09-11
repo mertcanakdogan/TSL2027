@@ -9,6 +9,7 @@ var fixtures: Array = []
 var current_week: int = 1
 var season_seed: int = 2026
 var team_contexts: Dictionary = {}
+var error_message: String = ""
 var match_engine = MatchEngineScript.new()
 
 func initialize(team_records: Array, seed_value: int = 2026, context_records: Dictionary = {}) -> void:
@@ -18,6 +19,7 @@ func initialize(team_records: Array, seed_value: int = 2026, context_records: Di
 	team_contexts = context_records.duplicate(true)
 	current_week = 1
 	season_seed = seed_value
+	error_message = ""
 
 	for team in teams:
 		standings[String(team["id"])] = {
@@ -148,6 +150,79 @@ func set_team_context(team_id: String, context: Dictionary) -> bool:
 		return false
 	team_contexts[team_id] = context.duplicate(true)
 	return true
+
+func get_snapshot() -> Dictionary:
+	return {
+		"current_week": current_week,
+		"season_seed": season_seed,
+		"teams": teams.duplicate(true),
+		"standings": standings.duplicate(true),
+		"fixtures": fixtures.duplicate(true),
+		"team_contexts": team_contexts.duplicate(true)
+	}
+
+func validate_snapshot(snapshot: Dictionary) -> bool:
+	if not _is_integer_number(snapshot.get("current_week", null)) or int(snapshot["current_week"]) < 1 or int(snapshot["current_week"]) > 35:
+		return _fail("Kayıt maç haftası geçersiz.")
+	if not _is_integer_number(snapshot.get("season_seed", null)):
+		return _fail("Kayıt sezon seed değeri geçersiz.")
+	if typeof(snapshot.get("teams", null)) != TYPE_ARRAY or typeof(snapshot.get("standings", null)) != TYPE_DICTIONARY:
+		return _fail("Kayıt lig verisi eksik.")
+	if typeof(snapshot.get("fixtures", null)) != TYPE_ARRAY or typeof(snapshot.get("team_contexts", null)) != TYPE_DICTIONARY:
+		return _fail("Kayıt fikstür/context verisi eksik.")
+	var saved_teams: Array = snapshot["teams"]
+	if saved_teams.size() != teams.size():
+		return _fail("Kayıt takım sayısı mevcut sezonla eşleşmiyor.")
+	var active_team_ids: Dictionary = {}
+	for team in teams:
+		active_team_ids[String(team.get("id", ""))] = true
+	var saved_team_ids: Dictionary = {}
+	for team in saved_teams:
+		if typeof(team) != TYPE_DICTIONARY or not team.has("id"):
+			return _fail("Kayıt takım listesinde geçersiz kayıt var.")
+		saved_team_ids[String(team["id"])] = true
+	if saved_team_ids != active_team_ids:
+		return _fail("Kayıt takımları mevcut sezonla eşleşmiyor.")
+	var saved_standings: Dictionary = snapshot["standings"]
+	if saved_standings.size() != active_team_ids.size():
+		return _fail("Kayıt puan durumu takım sayısıyla eşleşmiyor.")
+	for team_id in active_team_ids:
+		if not saved_standings.has(team_id):
+			return _fail("Kayıt puan durumunda takım eksik: %s" % team_id)
+	var saved_fixtures: Array = snapshot["fixtures"]
+	if saved_fixtures.size() != fixtures.size():
+		return _fail("Kayıt fikstür uzunluğu mevcut sezonla eşleşmiyor.")
+	for fixture in saved_fixtures:
+		if typeof(fixture) != TYPE_DICTIONARY:
+			return _fail("Kayıt fikstüründe geçersiz maç var.")
+		if not fixture.has("id") or not fixture.has("week") or not fixture.has("home_id") or not fixture.has("away_id") or not fixture.has("played") or not fixture.has("result"):
+			return _fail("Kayıt fikstür maçı eksik alan içeriyor.")
+		if int(fixture["week"]) < 1 or int(fixture["week"]) > 34:
+			return _fail("Kayıt fikstür haftası geçersiz.")
+		if not active_team_ids.has(String(fixture["home_id"])) or not active_team_ids.has(String(fixture["away_id"])):
+			return _fail("Kayıt fikstürü bilinmeyen takım içeriyor.")
+	return true
+
+func restore_snapshot(snapshot: Dictionary) -> bool:
+	if not validate_snapshot(snapshot):
+		return false
+	current_week = int(snapshot["current_week"])
+	season_seed = int(snapshot["season_seed"])
+	teams = snapshot["teams"].duplicate(true)
+	standings = snapshot["standings"].duplicate(true)
+	fixtures = snapshot["fixtures"].duplicate(true)
+	team_contexts = snapshot["team_contexts"].duplicate(true)
+	error_message = ""
+	return true
+
+func _fail(message: String) -> bool:
+	error_message = message
+	return false
+
+func _is_integer_number(value) -> bool:
+	if typeof(value) != TYPE_INT and typeof(value) != TYPE_FLOAT:
+		return false
+	return float(value) == round(float(value))
 
 func get_table() -> Array:
 	var rows: Array = []

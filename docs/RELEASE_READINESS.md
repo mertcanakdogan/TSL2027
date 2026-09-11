@@ -17,7 +17,7 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 - [ ] Formasyon/rol uygunluğu ve tüm lig takımlarında oyuncu attribute etkisi.
 - [ ] Taktik etkileri, maç olayları ve maç istatistikleri için deterministik
   senaryolar.
-- [ ] Save/load, veri paketi sürümü ve bozuk kayıt kurtarma davranışı.
+- [x] Sürümlü save/load ve bozuk/veri paketi uyumsuz kayıt reddi.
 - [x] Fikstür ve lig tablosu ekranlarının placeholder olmaktan çıkarılması.
 - [ ] Transfer ekranının ekonomi ve sözleşme state'iyle gerçek hale gelmesi.
 - [ ] Windows export, temiz makinede açılış ve temel kullanıcı akışı smoke testi.
