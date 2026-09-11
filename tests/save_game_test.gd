@@ -18,6 +18,7 @@ func _init() -> void:
 	var tactics = TacticsStateScript.new()
 	_check(tactics.initialize(), "test tactics should initialize")
 	_check(tactics.set_formation("4-3-3"), "test formation should update")
+	_check(squad.apply_formation("4-3-3"), "test lineup should follow the saved formation")
 	_check(tactics.set_mentality("positive"), "test mentality should update")
 	var first_player_id: String = String(squad.get_starting_xi()[0]["id"])
 	var bench_player_id: String = String(squad.get_bench()[0]["id"])
@@ -33,6 +34,7 @@ func _init() -> void:
 	var saved_payload: Dictionary = saver.last_payload
 	_check(int(saved_payload["save_schema_version"]) == SaveGameScript.SAVE_SCHEMA_VERSION, "save schema version should be explicit")
 	_check(String(saved_payload["data_schema_version"]) == data_pack.schema_version, "data schema version should be explicit")
+	_check(String(saved_payload["squad_state"]["formation"]) == "4-3-3", "save should include the active squad formation")
 
 	_check(league.play_next_week().size() == 9, "runtime mutation should advance another week")
 	_check(tactics.set_mentality("attacking"), "runtime mutation should change mentality")
@@ -40,6 +42,7 @@ func _init() -> void:
 	_check(league.current_week == saved_week, "load should restore current week")
 	_check(squad.starting_ids == saved_starting, "load should restore starting IDs")
 	_check(tactics.mentality == "positive", "load should restore tactics")
+	_check(squad.get_active_formation() == "4-3-3", "load should restore active squad formation")
 	_check(bool(league.fixtures[0]["played"]), "load should restore played fixture state")
 
 	var week_before_bad_load: int = league.current_week
@@ -60,6 +63,14 @@ func _init() -> void:
 	wrong_version_file.close()
 	_check(not saver.load_from_file(SAVE_PATH, league, squad, tactics, data_pack.schema_version, "kocaelispor"), "wrong data schema should fail")
 	_check(league.current_week == week_before_bad_load and tactics.mentality == tactics_before_bad_load, "wrong schema should not mutate state")
+
+	var mismatch_payload: Dictionary = saved_payload.duplicate(true)
+	mismatch_payload["tactics_state"]["formation"] = "4-4-2"
+	var mismatch_file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	mismatch_file.store_string(JSON.stringify(mismatch_payload))
+	mismatch_file.close()
+	_check(not saver.load_from_file(SAVE_PATH, league, squad, tactics, data_pack.schema_version, "kocaelispor"), "mismatched squad and tactics formation should fail")
+	_check(squad.get_active_formation() == "4-3-3" and tactics.formation == "4-3-3" and tactics.mentality == tactics_before_bad_load, "mismatched load should not mutate current state")
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 	if failures.is_empty():

@@ -14,10 +14,11 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
 - [x] Yönetilen ilk 11 ve taktik state'i deterministik maç profiline/xG'ye
   bağlanıyor; sentetik prototip formülü test ediliyor.
 - [x] 18 takımdan seçim yapma ve açık “Yeni Kariyeri Başlat” akışı.
-- [ ] Formasyon/rol uygunluğu ve tüm lig takımlarında oyuncu attribute etkisi.
+- [x] Beş formasyon için GK/DF/MF/FW pozisyon uygunluğu ve açık ilk 11 uygulaması.
+- [ ] Alt oyuncu rolü uygunluğu ve tüm lig takımlarında oyuncu attribute etkisi.
 - [ ] Taktik etkileri, maç olayları ve maç istatistikleri için deterministik
   senaryolar.
-- [x] Sürümlü save/load ve bozuk/veri paketi uyumsuz kayıt reddi.
+- [x] Sürümlü save/load, aktif formasyonun saklanması ve uyumsuz kayıt reddi.
 - [x] Fikstür ve lig tablosu ekranlarının placeholder olmaktan çıkarılması.
 - [ ] Transfer ekranının ekonomi ve sözleşme state'iyle gerçek hale gelmesi.
 - [ ] Windows export, temiz makinede açılış ve temel kullanıcı akışı smoke testi.

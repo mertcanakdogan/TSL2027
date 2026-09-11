@@ -13,6 +13,8 @@ All notable changes to this project will be documented in this file.
 - Read-only Fikstür and Lig Tablosu screens now render from LeagueState and refresh after weekly simulation.
 - Versioned JSON save/load now restores the season, fixture results, lineup IDs, and tactics with schema checks.
 - Team Seç now starts a fresh week-one career for any of the 18 loaded prototype teams.
+- Formation application now rebuilds the managed XI against centralized GK/DF/MF/FW requirements.
+- Save payloads now persist active lineup formation and reject mismatched squad/tactics formations.
 - Headless Godot tests for squad state and main-scene screen switching.
 - Deterministic synthetic player data for all 18 prototype teams.
 - Versioned competition rules data pack for the 2026-2027 prototype season.
@@ -27,3 +29,5 @@ All notable changes to this project will be documented in this file.
 - LeagueState exposes deep-copied managed-team fixtures for UI consumption.
 - Main dashboard exposes Kaydet/Yükle actions under `user://tsl2027_save.json`.
 - Managed-team identity is now dynamic across dashboard, squad, tactics, fixtures, context sync, and save/load validation.
+- Formation changes are staged in the Taktikler screen and only mutate lineup/tactics/context after explicit application.
+- Save schema version is now 2 because active lineup formation is part of the persisted state.
