@@ -11,6 +11,7 @@ const TacticsViewScript = preload("res://scripts/ui/tactics_view.gd")
 const FixtureViewScript = preload("res://scripts/ui/fixture_view.gd")
 const StandingsViewScript = preload("res://scripts/ui/standings_view.gd")
 const TransferViewScript = preload("res://scripts/ui/transfer_view.gd")
+const CreditsViewScript = preload("res://scripts/ui/credits_view.gd")
 const SaveGameScript = preload("res://scripts/core/save_game.gd")
 const TeamSelectionViewScript = preload("res://scripts/ui/team_selection_view.gd")
 
@@ -51,6 +52,7 @@ var transfer_view
 var fixture_view
 var standings_view
 var team_selection_view
+var credits_view
 var save_game
 var dashboard_subtitle: Label
 var dashboard_nodes: Array = []
@@ -180,7 +182,7 @@ func _build_ui() -> void:
 	sidebar.add_child(navigation)
 	navigation.add_child(_make_label("MENÜ", 12, COLOR_MUTED))
 
-	var menu_items := ["Genel Bakış", "Takım Seç", "Kadro", "Taktikler", "Fikstür", "Lig Tablosu", "Transfer"]
+	var menu_items := ["Genel Bakış", "Takım Seç", "Kadro", "Taktikler", "Fikstür", "Lig Tablosu", "Transfer", "Credits / Veri"]
 	for index in range(menu_items.size()):
 		var button := Button.new()
 		button.text = menu_items[index]
@@ -201,8 +203,10 @@ func _build_ui() -> void:
 			button.pressed.connect(_show_fixtures)
 		elif index == 5:
 			button.pressed.connect(_show_standings)
-		else:
+		elif index == 6:
 			button.pressed.connect(_show_transfer)
+		else:
+			button.pressed.connect(_show_credits)
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -322,6 +326,10 @@ func _build_ui() -> void:
 	team_selection_view.visible = false
 	team_selection_view.new_career_requested.connect(_on_new_career_requested)
 	content.add_child(team_selection_view)
+	credits_view = CreditsViewScript.new()
+	credits_view.setup()
+	credits_view.visible = false
+	content.add_child(credits_view)
 
 func _refresh_ui() -> void:
 	var rows: Array = league.get_table()
@@ -527,6 +535,9 @@ func _show_standings() -> void:
 func _show_transfer() -> void:
 	_set_screen("transfer")
 
+func _show_credits() -> void:
+	_set_screen("credits")
+
 func _on_transfer_requested(player_id: String) -> void:
 	if not transfer_market_state.sign_player(player_id, squad_state, economy_state):
 		transfer_view.apply_result(transfer_market_state.error_message)
@@ -555,6 +566,8 @@ func _set_screen(screen_name: String) -> void:
 		transfer_view.visible = screen_name == "transfer"
 	if team_selection_view != null:
 		team_selection_view.visible = screen_name == "team_selection"
+	if credits_view != null:
+		credits_view.visible = screen_name == "credits"
 	if content_scroll != null:
 		content_scroll.scroll_vertical = 0
 
