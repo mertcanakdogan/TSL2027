@@ -85,7 +85,7 @@ Veri sağlayıcı kodu doğrudan oyuna bağlanmayacak. Aşağıdaki soyutlama ku
 - `FootballDataProvider`: dış kaynaktan veri alma arayüzü
 - `RawDataImporter`: ham cevabı iç şemaya dönüştürür
 - `DataValidator`: zorunlu alanları, tekrarları ve tarihleri kontrol eder
-- `GameDataPack`: oyunun kullanacağı sürümlenmiş veri paketi
+- `DataPack`: oyunun kullanacağı sürümlenmiş veri paketi (`teams.json`, `players.json`, `game_rules.json`)
 
 Bu sayede sağlayıcı değişirse maç motoru ve arayüz değişmek zorunda kalmaz.
 

@@ -11,10 +11,12 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - Deterministik maç simülasyonu
 - Puan durumu ve temel maç merkezi
 - Godot 4 + GDScript başlangıç arayüzü
-- Sentetik örnek takım verisi
+- 18 takım için 324 oyuncudan oluşan sentetik veri paketi
+- Sezon kurallarını ayrı JSON paketi olarak yükleme
+- Veri paketi generator'ı ve Python doğrulama testleri
 - Araştırma, veri politikası ve geliştirme yol haritası
 
-Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri yalnızca maç motorunu göstermek için hazırlanmış prototip varsayımlarıdır.
+Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri ve oyuncu attribute'ları yalnızca maç motoru ile menajerlik ekranlarını geliştirmek için hazırlanmış sentetik prototip varsayımlarıdır.
 
 ## Çalıştırma
 
@@ -23,6 +25,14 @@ Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez
 3. Projeyi çalıştır.
 
 Ana ekran açıldığında "Haftayı Oynat" butonu o haftadaki 9 maçı simüle eder ve puan durumunu günceller.
+
+Veri paketi kontrolü için:
+
+```powershell
+python tools/generate_synthetic_data.py
+python tools/validate_data_pack.py
+python tools/test_data_pack.py
+```
 
 ## Teknik karar
 
@@ -41,7 +51,7 @@ oluşacağı için ilk aşamada ağır 3D motor veya düşük seviyeli C++ kodu 
 - `data/`: Örnek ve ileride dönüştürülmüş oyun verileri
 - `docs/`: Araştırma, lisans politikası ve yol haritası
 - `scenes/`: Godot sahneleri
-- `scripts/core/`: Fikstür, lig ve maç simülasyonu
+- `scripts/core/`: Veri paketi, fikstür, lig ve maç simülasyonu
 - `scripts/`: Godot arayüz kodu
 - `tools/`: Harici veri doğrulama araçları
 
@@ -57,3 +67,4 @@ MIT License, üçüncü taraf futbol verilerine, kulüp logolarına, fotoğrafla
 - [Veri ve lisans politikası](docs/DATA_AND_LICENSING.md)
 - [Yol haritası](docs/ROADMAP.md)
 - [Örnek veri notları](data/README.md)
+- [Değişiklik günlüğü](CHANGELOG.md)

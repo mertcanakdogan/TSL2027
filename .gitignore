@@ -7,6 +7,9 @@
 Thumbs.db
 *.tmp
 *.log
+__pycache__/
+.pytest_cache/
+*.gd.uid
 .env
 .env.*
 !.env.example

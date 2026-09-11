@@ -1,0 +1,21 @@
+{
+  "schema_version": "0.1.0",
+  "season": "2026-2027",
+  "source_type": "project_decision",
+  "source_note": "Competition values reflect the repository's researched 2026-2027 prototype rules. They are kept as data so a future season can use another rule set.",
+  "competition": {
+    "team_count": 18,
+    "rounds": 2,
+    "weeks": 34,
+    "matchday_squad_size": 21,
+    "max_substitutions": 5
+  },
+  "squad": {
+    "max_a_team_players": 28,
+    "max_foreign_players": 14,
+    "min_national_team_eligible_players": 14,
+    "min_young_national_team_eligible_players": 4,
+    "max_goalkeepers": 3,
+    "min_eligible_goalkeepers": 2
+  }
+}
