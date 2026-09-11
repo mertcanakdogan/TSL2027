@@ -11,6 +11,7 @@ dağıtım iddiası değildir.
 - Godot: 4.7.2 stable
 - Veri paketi: 18 takım, 324 sentetik oyuncu
 - Godot testleri: 9/9 başarılı
+- Sezon sonu özeti: hafta 35 sınırı ve 34 haftalık dashboard smoke akışı başarılı
 - Editor headless parse/import: başarılı
 - Python veri validator ve 9 kontrat testi: başarılı
 - Windows export: başarılı, runtime smoke `exit 0`
@@ -24,9 +25,9 @@ dağıtım iddiası değildir.
 
 ## Son yerel artifact
 
-- Executable: `build/TSL2027.exe`, 109464984 bytes
-- Portable package: `dist/TSL2027-windows-x64.zip`, 39352750 bytes
-- SHA256: `F4D16EF963195AC2163906D2A10E0E33C58EDD02D8141DC590220EDFC5F6A2C7`
+- Executable: `build/TSL2027.exe`, 109466440 bytes
+- Portable package: `dist/TSL2027-windows-x64.zip`, 39354156 bytes
+- SHA256: `40C9B4F513194511E1B0B8133C4446CF4BE30157D7F280389C78FE212453CE7F`
 
 `build/` ve `dist/` generated output olduğu için Git'e eklenmez. ZIP'in içinde
 executable, README, MIT LICENSE ve `docs/DATA_AND_LICENSING.md` bulunur.
