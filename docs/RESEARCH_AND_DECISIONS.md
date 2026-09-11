@@ -225,7 +225,21 @@ Bu değerler oyun tasarımı için sentetik prototip kurallarıdır; gerçek oyu
 kalitesi veya resmi rating iddiası değildir. Yorgunluk, kart, sakatlık,
 değişiklik ve olay pencereleri henüz bu bağlamın parçası değildir.
 
-## 7. Gerçek sezon kuralları
+## 7. Transfer ve ekonomi prototipi
+
+İlk transfer diliminde fiyat, maaş, başlangıç bütçesi ve haftalık gelir resmi
+kulüp finansmanı olarak modellenmez. `game_rules.json` içindeki ekonomi alanı
+oyun dengesi için sentetik bir sözleşmedir. Teklifler oyuncu attribute
+ortalamasından deterministik üretilir; imza işlemi bakiye, maaş bütçesi, 28
+kişilik kadro sınırı ve 1-8. hafta transfer penceresiyle doğrulanır.
+
+`EconomyState`, sözleşmeleri ve haftalık tahsilatı; `TransferMarketState` ise
+teklif kataloğu ve işlem geçmişini sahiplenir. Bu iki state `SquadState` ile
+tek orchestrator üzerinden atomik güncellenir ve save schema 3'te birlikte
+saklanır. Satış, kiralık transfer, taksit, menajer komisyonu ve çok yıllı
+pazarlık sonraki bir aşamanın kapsamıdır.
+
+## 8. Gerçek sezon kuralları
 
 TFF'nin 2026-2027 Süper Lig statüsüne göre:
 

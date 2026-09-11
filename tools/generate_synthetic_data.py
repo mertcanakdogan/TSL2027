@@ -150,6 +150,16 @@ def _build_rules(team_count: int) -> dict:
             "max_goalkeepers": 3,
             "min_eligible_goalkeepers": 2,
         },
+        "economy": {
+            "initial_balance_base": 12_000_000,
+            "initial_balance_per_strength": 250_000,
+            "weekly_revenue_base": 250_000,
+            "weekly_revenue_per_strength": 15_000,
+            "weekly_wage_budget_base": 800_000,
+            "weekly_wage_budget_per_strength": 10_000,
+            "transfer_window_end_week": 8,
+            "max_roster_size": 28,
+        },
     }
 
 

@@ -2,6 +2,8 @@ class_name SquadState
 extends RefCounted
 
 const FormationRulesScript = preload("res://scripts/core/formation_rules.gd")
+const MAX_ROSTER_SIZE := 28
+const BENCH_SIZE := 7
 
 const DEFAULT_STARTING_COUNTS := {
 	"GK": 1,
@@ -46,6 +48,8 @@ func initialize(team_id_value: String, roster_records: Array, bench_size: int = 
 
 		seen_ids[player_id] = true
 		new_roster.append(record.duplicate(true))
+	if new_roster.size() > MAX_ROSTER_SIZE:
+		return _fail("A takım kadrosu %d oyuncuyla sınırlıdır." % MAX_ROSTER_SIZE)
 
 	var position_counts := _count_positions(new_roster)
 	for position in DEFAULT_STARTING_COUNTS:
@@ -68,6 +72,30 @@ func initialize(team_id_value: String, roster_records: Array, bench_size: int = 
 
 func get_starting_xi() -> Array:
 	return _records_for_ids(starting_ids)
+
+func can_add_player(player_record: Dictionary) -> bool:
+	if roster.size() >= MAX_ROSTER_SIZE:
+		return _fail("A takım kadrosu %d oyuncuyla sınırlıdır." % MAX_ROSTER_SIZE)
+	var player_id := String(player_record.get("id", ""))
+	var record_team_id := String(player_record.get("team_id", ""))
+	var position := String(player_record.get("position", ""))
+	if player_id.is_empty() or _roster_has_id(player_id):
+		return _fail("Oyuncu kimliği boş veya kadroda zaten var.")
+	if record_team_id != team_id:
+		return _fail("Transfer oyuncusu yönetilen takımla eşleşmiyor.")
+	if not VALID_POSITIONS.has(position):
+		return _fail("Transfer oyuncusunda geçersiz pozisyon var: %s" % position)
+	return true
+
+func add_player(player_record: Dictionary) -> bool:
+	if not can_add_player(player_record):
+		return false
+	var player_id := String(player_record["id"])
+	roster.append(player_record.duplicate(true))
+	if bench_ids.size() < BENCH_SIZE:
+		bench_ids.append(player_id)
+	error_message = ""
+	return true
 
 func get_starting_position_counts() -> Dictionary:
 	return _position_counts_for_ids(starting_ids)
@@ -132,6 +160,7 @@ func get_snapshot() -> Dictionary:
 	return {
 		"team_id": team_id,
 		"formation": active_formation,
+		"roster": roster.duplicate(true),
 		"starting_ids": starting_ids.duplicate(),
 		"bench_ids": bench_ids.duplicate()
 	}
@@ -139,6 +168,13 @@ func get_snapshot() -> Dictionary:
 func validate_snapshot(snapshot: Dictionary) -> bool:
 	if not snapshot.has("team_id") or String(snapshot["team_id"]) != team_id:
 		return _fail("Kayıt takımı mevcut kadroyla eşleşmiyor.")
+	var candidate_roster: Array = roster
+	if snapshot.has("roster"):
+		if typeof(snapshot["roster"]) != TYPE_ARRAY:
+			return _fail("Kayıt kadrosu liste tipinde olmalıdır.")
+		candidate_roster = snapshot["roster"]
+		if not _validate_roster_records(candidate_roster, team_id):
+			return false
 	var saved_formation := String(snapshot.get("formation", "4-4-2"))
 	if not FormationRulesScript.is_supported(saved_formation):
 		return _fail("Kayıt kadrosunda geçersiz diziliş var: %s" % saved_formation)
@@ -148,23 +184,25 @@ func validate_snapshot(snapshot: Dictionary) -> bool:
 	var saved_bench: Array = snapshot["bench_ids"]
 	if saved_starting.size() != 11:
 		return _fail("Kayıt ilk 11 için 11 oyuncu içermiyor.")
-	if saved_bench.size() > roster.size() - saved_starting.size():
+	if saved_bench.size() > candidate_roster.size() - saved_starting.size():
 		return _fail("Kayıt yedek kulübesi mevcut kadrodan büyük.")
 	var seen_ids: Dictionary = {}
 	for player_id in saved_starting + saved_bench:
 		var normalized_id: String = String(player_id)
 		if normalized_id.is_empty() or seen_ids.has(normalized_id):
 			return _fail("Kayıt kadrosunda geçersiz veya tekrarlanan oyuncu var.")
-		if not _roster_has_id(normalized_id):
+		if not _roster_has_id_in(normalized_id, candidate_roster):
 			return _fail("Kayıt oyuncusu mevcut kadroda bulunmuyor: %s" % normalized_id)
 		seen_ids[normalized_id] = true
-	if _position_counts_for_ids(saved_starting) != get_formation_requirements(saved_formation):
+	if _position_counts_for_ids(saved_starting, candidate_roster) != get_formation_requirements(saved_formation):
 		return _fail("Kayıt ilk 11'i diziliş pozisyonlarıyla eşleşmiyor.")
 	return true
 
 func restore_snapshot(snapshot: Dictionary) -> bool:
 	if not validate_snapshot(snapshot):
 		return false
+	if snapshot.has("roster"):
+		roster = snapshot["roster"].duplicate(true)
 	active_formation = String(snapshot.get("formation", "4-4-2"))
 	starting_ids = snapshot["starting_ids"].duplicate()
 	bench_ids = snapshot["bench_ids"].duplicate()
@@ -233,9 +271,9 @@ func _count_positions(players: Array) -> Dictionary:
 		counts[position] = int(counts.get(position, 0)) + 1
 	return counts
 
-func _position_counts_for_ids(player_ids: Array) -> Dictionary:
-	var players: Array = _records_for_ids(player_ids)
-	return _count_positions(players)
+func _position_counts_for_ids(player_ids: Array, source_roster: Array = []) -> Dictionary:
+	var active_roster: Array = roster if source_roster.is_empty() else source_roster
+	return _count_positions(_records_for_ids_from_roster(player_ids, active_roster))
 
 func _validate_roster_for_formation(formation: String) -> bool:
 	if not FormationRulesScript.is_supported(formation):
@@ -253,6 +291,32 @@ func _record_for_id(player_id: String) -> Dictionary:
 			return player
 	return {}
 
+func _validate_roster_records(roster_records: Array, expected_team_id: String) -> bool:
+	if roster_records.size() < 11 or roster_records.size() > MAX_ROSTER_SIZE:
+		return _fail("Kayıt kadrosu 11-%d oyuncu arasında olmalıdır." % MAX_ROSTER_SIZE)
+	var seen_ids: Dictionary = {}
+	for record in roster_records:
+		if typeof(record) != TYPE_DICTIONARY:
+			return _fail("Kayıt kadrosu sözlük tipinde olmalıdır.")
+		var player_id := String(record.get("id", ""))
+		if player_id.is_empty() or seen_ids.has(player_id):
+			return _fail("Kayıt kadrosunda geçersiz veya tekrarlanan oyuncu var.")
+		if String(record.get("team_id", "")) != expected_team_id:
+			return _fail("Kayıt oyuncusu yönetilen takımla eşleşmiyor: %s" % player_id)
+		if not VALID_POSITIONS.has(String(record.get("position", ""))):
+			return _fail("Kayıt oyuncusunda geçersiz pozisyon var: %s" % player_id)
+		seen_ids[player_id] = true
+	return true
+
+func _records_for_ids_from_roster(player_ids: Array, source_roster: Array) -> Array:
+	var records: Array = []
+	for player_id in player_ids:
+		for player in source_roster:
+			if String(player.get("id", "")) == String(player_id):
+				records.append(player.duplicate(true))
+				break
+	return records
+
 func _records_for_ids(player_ids: Array) -> Array:
 	var records: Array = []
 	for player_id in player_ids:
@@ -263,7 +327,10 @@ func _records_for_ids(player_ids: Array) -> Array:
 	return records
 
 func _roster_has_id(player_id: String) -> bool:
-	for player in roster:
+	return _roster_has_id_in(player_id, roster)
+
+func _roster_has_id_in(player_id: String, source_roster: Array) -> bool:
+	for player in source_roster:
 		if String(player.get("id", "")) == player_id:
 			return true
 	return false

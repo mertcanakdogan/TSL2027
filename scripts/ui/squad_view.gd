@@ -117,7 +117,7 @@ func _add_group_player(parent: VBoxContainer, player: Dictionary) -> void:
 func _add_roster_player(parent: VBoxContainer, player: Dictionary) -> void:
 	var player_id: String = String(player.get("id", ""))
 	var group: String = squad_state.get_player_group(player_id)
-	var group_text := "İLK 11" if group == "starting" else "YEDEK"
+	var group_text := "İLK 11" if group == "starting" else ("YEDEK" if group == "bench" else "KADRO DIŞI")
 	var row := HBoxContainer.new()
 	row.custom_minimum_size = Vector2(0, 32)
 	parent.add_child(row)

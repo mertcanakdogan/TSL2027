@@ -4,10 +4,13 @@ const LeagueStateScript = preload("res://scripts/core/league_state.gd")
 const DataPackScript = preload("res://scripts/core/data_pack.gd")
 const SquadStateScript = preload("res://scripts/core/squad_state.gd")
 const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
+const EconomyStateScript = preload("res://scripts/core/economy_state.gd")
+const TransferMarketStateScript = preload("res://scripts/core/transfer_market_state.gd")
 const SquadViewScript = preload("res://scripts/ui/squad_view.gd")
 const TacticsViewScript = preload("res://scripts/ui/tactics_view.gd")
 const FixtureViewScript = preload("res://scripts/ui/fixture_view.gd")
 const StandingsViewScript = preload("res://scripts/ui/standings_view.gd")
+const TransferViewScript = preload("res://scripts/ui/transfer_view.gd")
 const SaveGameScript = preload("res://scripts/core/save_game.gd")
 const TeamSelectionViewScript = preload("res://scripts/ui/team_selection_view.gd")
 
@@ -42,6 +45,9 @@ var squad_state
 var squad_view
 var tactics_state
 var tactics_view
+var economy_state
+var transfer_market_state
+var transfer_view
 var fixture_view
 var standings_view
 var team_selection_view
@@ -82,6 +88,23 @@ func _start_new_career(selected_team_id: String) -> bool:
 	if not tactics_state.initialize():
 		_set_data_error_state(tactics_state.error_message)
 		return false
+	economy_state = EconomyStateScript.new()
+	if not economy_state.initialize(
+		managed_team_id,
+		int(selected_team.get("strength", 50)),
+		data_pack.rules.get("economy", {}),
+		data_pack.get_team_squad(managed_team_id)
+	):
+		_set_data_error_state(economy_state.error_message)
+		return false
+	transfer_market_state = TransferMarketStateScript.new()
+	if not transfer_market_state.initialize(
+		data_pack.players,
+		managed_team_id,
+		int(data_pack.rules.get("economy", {}).get("transfer_window_end_week", 8))
+	):
+		_set_data_error_state(transfer_market_state.error_message)
+		return false
 	league = LeagueStateScript.new()
 	league.initialize(data_pack.teams, 2026)
 	_sync_managed_context()
@@ -93,6 +116,7 @@ func _start_new_career(selected_team_id: String) -> bool:
 	]
 	squad_view.setup(squad_state, managed_team_name)
 	tactics_view.setup(tactics_state, managed_team_name)
+	transfer_view.setup(transfer_market_state, economy_state, squad_state, managed_team_name)
 	fixture_view.setup(league, managed_team_id, managed_team_name)
 	standings_view.setup(league)
 	team_selection_view.setup(data_pack.teams, managed_team_id)
@@ -178,7 +202,7 @@ func _build_ui() -> void:
 		elif index == 5:
 			button.pressed.connect(_show_standings)
 		else:
-			button.pressed.connect(_show_placeholder.bind(menu_items[index]))
+			button.pressed.connect(_show_transfer)
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -290,6 +314,10 @@ func _build_ui() -> void:
 	standings_view = StandingsViewScript.new()
 	standings_view.visible = false
 	content.add_child(standings_view)
+	transfer_view = TransferViewScript.new()
+	transfer_view.visible = false
+	transfer_view.transfer_requested.connect(_on_transfer_requested)
+	content.add_child(transfer_view)
 	team_selection_view = TeamSelectionViewScript.new()
 	team_selection_view.visible = false
 	team_selection_view.new_career_requested.connect(_on_new_career_requested)
@@ -333,6 +361,8 @@ func _refresh_ui() -> void:
 		fixture_view.refresh()
 	if standings_view != null:
 		standings_view.refresh()
+	if transfer_view != null:
+		transfer_view.refresh()
 
 func _set_data_error_state(message: String = "") -> void:
 	data_status_label.text = "Veri paketi yüklenemedi"
@@ -349,7 +379,7 @@ func _on_save_pressed() -> void:
 	if save_game == null:
 		result_label.text = "Oyun kaydedilemedi: kayıt sistemi hazır değil."
 		return
-	if not save_game.save_to_file(SAVE_PATH, league, squad_state, tactics_state, data_pack.schema_version):
+	if not save_game.save_to_file(SAVE_PATH, league, squad_state, tactics_state, economy_state, transfer_market_state, data_pack.schema_version):
 		result_label.text = "Oyun kaydedilemedi: %s" % save_game.error_message
 		return
 	result_label.text = "Oyun kaydedildi. Hafta %d/%d" % [min(league.current_week, 34), 34]
@@ -358,12 +388,13 @@ func _on_load_pressed() -> void:
 	if save_game == null:
 		result_label.text = "Oyun yüklenemedi: kayıt sistemi hazır değil."
 		return
-	if not save_game.load_from_file(SAVE_PATH, league, squad_state, tactics_state, data_pack.schema_version, managed_team_id):
+	if not save_game.load_from_file(SAVE_PATH, league, squad_state, tactics_state, economy_state, transfer_market_state, data_pack.schema_version, managed_team_id):
 		result_label.text = "Oyun yüklenemedi: %s" % save_game.error_message
 		return
 	_sync_managed_context()
 	squad_view.setup(squad_state, managed_team_name)
 	tactics_view.setup(tactics_state, managed_team_name)
+	transfer_view.setup(transfer_market_state, economy_state, squad_state, managed_team_name)
 	fixture_view.setup(league, managed_team_id, managed_team_name)
 	_refresh_ui()
 	result_label.text = "Oyun yüklendi. Hafta %d/%d" % [min(league.current_week, 34), 34]
@@ -394,6 +425,9 @@ func _on_play_week_pressed() -> void:
 		result_label.text = "Sezonun tüm haftaları tamamlandı."
 		_refresh_ui()
 		return
+	if not economy_state.advance_week(week_to_play):
+		result_label.text = "Hafta oynandı ancak ekonomi tahsil edilemedi: %s" % economy_state.error_message
+	transfer_market_state.set_current_week(league.current_week)
 
 	var lines: Array = ["Hafta %d tamamlandı." % week_to_play]
 	for result in results:
@@ -461,6 +495,17 @@ func _show_fixtures() -> void:
 func _show_standings() -> void:
 	_set_screen("standings")
 
+func _show_transfer() -> void:
+	_set_screen("transfer")
+
+func _on_transfer_requested(player_id: String) -> void:
+	if not transfer_market_state.sign_player(player_id, squad_state, economy_state):
+		transfer_view.apply_result(transfer_market_state.error_message)
+		return
+	squad_view.setup(squad_state, managed_team_name)
+	transfer_view.apply_result("Transfer tamamlandı. Oyuncu kadroya ve sözleşmelere eklendi.")
+	result_label.text = "Transfer tamamlandı: %s" % player_id
+
 func _show_placeholder(screen_name: String) -> void:
 	_set_screen("dashboard")
 	result_label.text = "%s ekranı sonraki geliştirme diliminde açılacak." % screen_name
@@ -477,6 +522,8 @@ func _set_screen(screen_name: String) -> void:
 		fixture_view.visible = screen_name == "fixtures"
 	if standings_view != null:
 		standings_view.visible = screen_name == "standings"
+	if transfer_view != null:
+		transfer_view.visible = screen_name == "transfer"
 	if team_selection_view != null:
 		team_selection_view.visible = screen_name == "team_selection"
 	if content_scroll != null:

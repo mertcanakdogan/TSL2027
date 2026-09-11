@@ -2,16 +2,16 @@ class_name SaveGame
 extends RefCounted
 
 const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
-const SAVE_SCHEMA_VERSION := 2
+const SAVE_SCHEMA_VERSION := 3
 
 var error_message: String = ""
 var last_payload: Dictionary = {}
 
-func save_to_file(path: String, league, squad, tactics, data_schema_version: String) -> bool:
+func save_to_file(path: String, league, squad, tactics, economy, transfer, data_schema_version: String) -> bool:
 	error_message = ""
 	if not _is_user_path(path):
 		return _fail("Kayıt yalnızca user:// altında yazılabilir.")
-	last_payload = build_payload(league, squad, tactics, data_schema_version)
+	last_payload = build_payload(league, squad, tactics, economy, transfer, data_schema_version)
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return _fail("Kayıt dosyası açılamadı: %s" % path)
@@ -24,6 +24,8 @@ func load_from_file(
 	league,
 	squad,
 	tactics,
+	economy,
+	transfer,
 	expected_data_schema_version: String,
 	expected_team_id: String
 ) -> bool:
@@ -31,12 +33,14 @@ func load_from_file(
 	var payload: Dictionary = _read_payload(path)
 	if payload.is_empty():
 		return false
-	if not _validate_payload(payload, league, squad, tactics, expected_data_schema_version, expected_team_id):
+	if not _validate_payload(payload, league, squad, tactics, economy, transfer, expected_data_schema_version, expected_team_id):
 		return false
 
 	var old_league: Dictionary = league.get_snapshot()
 	var old_squad: Dictionary = squad.get_snapshot()
 	var old_tactics: Dictionary = tactics.get_snapshot()
+	var old_economy: Dictionary = economy.get_snapshot()
+	var old_transfer: Dictionary = transfer.get_snapshot()
 	if not league.restore_snapshot(payload["league_state"]):
 		return _fail(league.error_message)
 	if not squad.restore_snapshot(payload["squad_state"]):
@@ -47,10 +51,23 @@ func load_from_file(
 		squad.restore_snapshot(old_squad)
 		tactics.initialize(old_tactics)
 		return _fail(tactics.error_message)
+	if not economy.restore_snapshot(payload["economy_state"]):
+		league.restore_snapshot(old_league)
+		squad.restore_snapshot(old_squad)
+		tactics.initialize(old_tactics)
+		economy.restore_snapshot(old_economy)
+		return _fail(economy.error_message)
+	if not transfer.restore_snapshot(payload["transfer_state"]):
+		league.restore_snapshot(old_league)
+		squad.restore_snapshot(old_squad)
+		tactics.initialize(old_tactics)
+		economy.restore_snapshot(old_economy)
+		transfer.restore_snapshot(old_transfer)
+		return _fail(transfer.error_message)
 	last_payload = payload.duplicate(true)
 	return true
 
-func build_payload(league, squad, tactics, data_schema_version: String) -> Dictionary:
+func build_payload(league, squad, tactics, economy, transfer, data_schema_version: String) -> Dictionary:
 	return {
 		"save_schema_version": SAVE_SCHEMA_VERSION,
 		"data_schema_version": data_schema_version,
@@ -58,7 +75,9 @@ func build_payload(league, squad, tactics, data_schema_version: String) -> Dicti
 		"managed_team_id": squad.team_id,
 		"league_state": league.get_snapshot(),
 		"squad_state": squad.get_snapshot(),
-		"tactics_state": tactics.get_snapshot()
+		"tactics_state": tactics.get_snapshot(),
+		"economy_state": economy.get_snapshot(),
+		"transfer_state": transfer.get_snapshot()
 	}
 
 func _read_payload(path: String) -> Dictionary:
@@ -85,6 +104,8 @@ func _validate_payload(
 	league,
 	squad,
 	tactics,
+	economy,
+	transfer,
 	expected_data_schema_version: String,
 	expected_team_id: String
 ) -> bool:
@@ -94,7 +115,7 @@ func _validate_payload(
 		return _fail("Kayıt veri paketi sürümüyle eşleşmiyor.")
 	if String(payload.get("managed_team_id", "")) != expected_team_id or squad.team_id != expected_team_id:
 		return _fail("Kayıt yönetilen takımla eşleşmiyor.")
-	if typeof(payload.get("league_state", null)) != TYPE_DICTIONARY or typeof(payload.get("squad_state", null)) != TYPE_DICTIONARY or typeof(payload.get("tactics_state", null)) != TYPE_DICTIONARY:
+	if typeof(payload.get("league_state", null)) != TYPE_DICTIONARY or typeof(payload.get("squad_state", null)) != TYPE_DICTIONARY or typeof(payload.get("tactics_state", null)) != TYPE_DICTIONARY or typeof(payload.get("economy_state", null)) != TYPE_DICTIONARY or typeof(payload.get("transfer_state", null)) != TYPE_DICTIONARY:
 		return _fail("Kayıt state bölümleri eksik.")
 	if not league.validate_snapshot(payload["league_state"]):
 		return _fail(league.error_message)
@@ -106,6 +127,10 @@ func _validate_payload(
 	var saved_formation := String(payload["squad_state"].get("formation", "4-4-2"))
 	if saved_formation != tactics_probe.formation:
 		return _fail("Kayıt kadro ve taktik dizilişiyle eşleşmiyor.")
+	if not economy.validate_snapshot(payload["economy_state"]):
+		return _fail(economy.error_message)
+	if not transfer.validate_snapshot(payload["transfer_state"]):
+		return _fail(transfer.error_message)
 	return true
 
 func _is_user_path(path: String) -> bool:

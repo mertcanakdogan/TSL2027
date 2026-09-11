@@ -21,6 +21,7 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - Sürümlü JSON save/load: sezon, fikstür sonuçları, kadro ve taktik state'i
 - 18 takımdan seçim yaparak yeni kariyer başlatma akışı
 - Formasyon pozisyon uygunluğu, taslak taktik seçimi ve açık ilk 11 uygulaması
+- Sentetik transfer pazarı, kulüp bütçesi, haftalık maaş tahsilatı ve sözleşme save/load akışı
 - Araştırma, veri politikası ve geliştirme yol haritası
 
 Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri ve oyuncu attribute'ları yalnızca maç motoru ile menajerlik ekranlarını geliştirmek için hazırlanmış sentetik prototip varsayımlarıdır.
@@ -65,6 +66,7 @@ oluşacağı için ilk aşamada ağır 3D motor veya düşük seviyeli C++ kodu 
 - `docs/`: Araştırma, lisans politikası ve yol haritası
 - `scenes/`: Godot sahneleri
 - `scripts/core/`: Veri paketi, fikstür, lig, taktik ve maç simülasyonu
+- `scripts/core/`: Veri paketi, fikstür, lig, taktik, ekonomi, transfer ve maç simülasyonu
 - `scripts/`: Godot arayüz kodu
 - `tools/`: Harici veri doğrulama araçları
 

@@ -133,6 +133,14 @@ def validate_payloads(team_payload: dict, player_payload: dict, rules_payload: d
         "squad.min_young_national_team_eligible_players": 4,
         "squad.max_goalkeepers": 3,
         "squad.min_eligible_goalkeepers": 2,
+        "economy.initial_balance_base": 12_000_000,
+        "economy.initial_balance_per_strength": 250_000,
+        "economy.weekly_revenue_base": 250_000,
+        "economy.weekly_revenue_per_strength": 15_000,
+        "economy.weekly_wage_budget_base": 800_000,
+        "economy.weekly_wage_budget_per_strength": 10_000,
+        "economy.transfer_window_end_week": 8,
+        "economy.max_roster_size": 28,
     }
     for path, expected in expected_rules.items():
         actual = _required_int(rules_payload, path, errors)

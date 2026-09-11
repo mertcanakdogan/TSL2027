@@ -82,11 +82,15 @@ class DataPackTests(unittest.TestCase):
     def test_rules_are_explicit(self) -> None:
         competition = self.rules["competition"]
         squad = self.rules["squad"]
+        economy = self.rules["economy"]
         self.assertEqual(competition["team_count"], 18)
         self.assertEqual(competition["weeks"], 34)
         self.assertEqual(competition["matchday_squad_size"], 21)
         self.assertEqual(competition["max_substitutions"], 5)
         self.assertEqual(squad["max_a_team_players"], 28)
+        self.assertEqual(economy["initial_balance_base"], 12_000_000)
+        self.assertEqual(economy["transfer_window_end_week"], 8)
+        self.assertEqual(economy["max_roster_size"], 28)
 
     def test_data_pack_metadata_is_explicit(self) -> None:
         for payload in (self.teams, self.players, self.rules):

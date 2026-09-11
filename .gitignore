@@ -10,6 +10,7 @@ Thumbs.db
 __pycache__/
 .pytest_cache/
 *.gd.uid
+Godot_v*.exe
 .env
 .env.*
 !.env.example

@@ -19,6 +19,8 @@ Bu klasör şu an yalnızca prototip verisi içerir.
 ## game_rules.json
 
 - Lig takım sayısı, hafta sayısı, maç günü kadro sınırı ve oyuncu değişikliği gibi kuralları runtime'dan ayırır.
+- `economy` bölümü başlangıç bütçesi, haftalık gelir/maaş bütçesi, transfer penceresi ve prototip kadro üst sınırını tanımlar.
+- Ekonomi değerleri resmi kulüp finansmanı veya gerçek piyasa değeri değildir; yalnızca sentetik oyun dengesi kurallarıdır.
 - Kural alanları ileride farklı sezon sürümlerinin aynı runtime tarafından yüklenebilmesi için JSON'da tutulur.
 
 ## Üretim ve doğrulama
