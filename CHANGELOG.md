@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - Save payloads now persist active lineup formation and reject mismatched squad/tactics formations.
 - Transfer screen now shows deterministic synthetic offers and performs budget-checked signings.
 - Economy state now tracks balance, weekly revenue, wage budget, contracts, and weekly settlement.
+- Match results now include deterministic goal/card events and bounded shot, corner, foul, card, possession, and xG statistics.
 - Headless Godot tests for squad state and main-scene screen switching.
 - Deterministic synthetic player data for all 18 prototype teams.
 - Versioned competition rules data pack for the 2026-2027 prototype season.
@@ -35,3 +36,4 @@ All notable changes to this project will be documented in this file.
 - Save schema version is now 2 because active lineup formation is part of the persisted state.
 - Save schema version is now 3 because dynamic roster, economy, and transfer-market state are persisted.
 - Transfer signing is atomic across market, economy, and SquadState; the transfer window closes after week 8.
+- Match center and fixture rows now expose the managed match's synthetic stats and event summary.

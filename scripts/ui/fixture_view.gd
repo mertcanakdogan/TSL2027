@@ -72,7 +72,14 @@ func _make_fixture_row(fixture: Dictionary) -> Control:
 		var away_goals: int = int(result.get("away_goals", 0))
 		var managed_goals: int = home_goals if home_id == team_id else away_goals
 		var conceded_goals: int = away_goals if home_id == team_id else home_goals
-		status = "Skor %d-%d" % [managed_goals, conceded_goals]
+		var stats: Dictionary = result.get("match_stats", {})
+		status = "Skor %d-%d • xG %.2f-%.2f • %d olay" % [
+			managed_goals,
+			conceded_goals,
+			float(stats.get("home_xg", result.get("home_xg", 0.0))) if home_id == team_id else float(stats.get("away_xg", result.get("away_xg", 0.0))),
+			float(stats.get("away_xg", result.get("away_xg", 0.0))) if home_id == team_id else float(stats.get("home_xg", result.get("home_xg", 0.0))),
+			result.get("events", []).size()
+		]
 		status_color = COLOR_SUCCESS
 
 	var row := HBoxContainer.new()

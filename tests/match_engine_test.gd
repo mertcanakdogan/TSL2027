@@ -30,6 +30,25 @@ func _run() -> void:
 	_check(first == replay, "same seed and context should replay identically")
 	_check(float(first["home_xg"]) > 0.0 and float(first["away_xg"]) > 0.0, "xG should stay positive")
 	_check(float(first["home_possession"]) >= 35.0 and float(first["home_possession"]) <= 65.0, "home possession should be bounded")
+	_check(typeof(first.get("events", null)) == TYPE_ARRAY, "result should include an event list")
+	_check(typeof(first.get("match_stats", null)) == TYPE_DICTIONARY, "result should include match stats")
+	var home_goal_events := 0
+	var away_goal_events := 0
+	for event in first["events"]:
+		_check(int(event.get("minute", 0)) >= 1 and int(event.get("minute", 0)) <= 90, "event minute should be in match bounds")
+		if String(event.get("type", "")) == "goal":
+			if String(event.get("team_id", "")) == "home":
+				home_goal_events += 1
+			elif String(event.get("team_id", "")) == "away":
+				away_goal_events += 1
+	_check(home_goal_events == int(first["home_goals"]), "home goal events should match home score")
+	_check(away_goal_events == int(first["away_goals"]), "away goal events should match away score")
+	var stats: Dictionary = first["match_stats"]
+	_check(int(stats["home_shots_on_target"]) <= int(stats["home_shots"]), "home shots on target should not exceed shots")
+	_check(int(stats["away_shots_on_target"]) <= int(stats["away_shots"]), "away shots on target should not exceed shots")
+	_check(int(stats["home_yellow_cards"]) >= 0 and int(stats["home_yellow_cards"]) <= 7, "home cards should be bounded")
+	_check(int(stats["away_yellow_cards"]) >= 0 and int(stats["away_yellow_cards"]) <= 7, "away cards should be bounded")
+	_check(abs(float(stats["home_possession"]) + float(stats["away_possession"]) - 100.0) < 0.001, "match stats possession should total 100")
 
 	var fallback: Dictionary = engine.simulate(home, away, 4242)
 	_check(fallback.has("home_attack_strength"), "fallback result should expose profile fields")

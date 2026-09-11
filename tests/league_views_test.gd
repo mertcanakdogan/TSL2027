@@ -20,6 +20,12 @@ func _init() -> void:
 
 	team_fixtures[0]["played"] = true
 	_check(not bool(league.fixtures[0]["played"]), "fixture query should return deep copies")
+	var results: Array = league.play_next_week()
+	_check(not results.is_empty(), "league should produce results for the first week")
+	_check(results[0].has("events") and results[0].has("match_stats"), "league result should preserve match events and stats")
+	var played_fixture: Dictionary = league.get_fixtures_for_team("a")[0]
+	_check(bool(played_fixture["played"]), "fixture query should expose played state")
+	_check(played_fixture["result"].has("events"), "played fixture should retain event list")
 
 	if failures.is_empty():
 		print("OK: league view data tests passed")

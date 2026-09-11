@@ -22,6 +22,7 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - 18 takımdan seçim yaparak yeni kariyer başlatma akışı
 - Formasyon pozisyon uygunluğu, taslak taktik seçimi ve açık ilk 11 uygulaması
 - Sentetik transfer pazarı, kulüp bütçesi, haftalık maaş tahsilatı ve sözleşme save/load akışı
+- Deterministik maç olayları ve şut/isabetli şut/korner/faul/kart/xG istatistikleri
 - Araştırma, veri politikası ve geliştirme yol haritası
 
 Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri ve oyuncu attribute'ları yalnızca maç motoru ile menajerlik ekranlarını geliştirmek için hazırlanmış sentetik prototip varsayımlarıdır.
