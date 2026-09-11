@@ -2,6 +2,8 @@ extends Control
 
 const LeagueStateScript = preload("res://scripts/core/league_state.gd")
 const DataPackScript = preload("res://scripts/core/data_pack.gd")
+const SquadStateScript = preload("res://scripts/core/squad_state.gd")
+const SquadViewScript = preload("res://scripts/ui/squad_view.gd")
 
 const COLOR_BACKGROUND := Color(0.05098, 0.058824, 0.078431, 1.0)
 const COLOR_PANEL := Color(0.090196, 0.105882, 0.137255, 1.0)
@@ -25,6 +27,10 @@ var result_label: Label
 var play_button: Button
 var data_status_label: Label
 var data_pack
+var squad_state
+var squad_view
+var dashboard_nodes: Array = []
+var content_scroll: ScrollContainer
 
 func _ready() -> void:
 	data_pack = DataPackScript.new()
@@ -39,6 +45,11 @@ func _ready() -> void:
 		return
 
 	var team_records: Array = data_pack.teams
+	squad_state = SquadStateScript.new()
+	var squad_loaded: bool = squad_state.initialize(USER_TEAM_ID, data_pack.get_team_squad(USER_TEAM_ID))
+	if not squad_loaded:
+		_set_data_error_state(squad_state.error_message)
+		return
 	league = LeagueStateScript.new()
 	league.initialize(team_records, 2026)
 	data_status_label.text = "%d takım • %d sentetik oyuncu • şema %s" % [
@@ -46,6 +57,7 @@ func _ready() -> void:
 		data_pack.players.size(),
 		data_pack.schema_version
 	]
+	squad_view.setup(squad_state)
 	_refresh_ui()
 
 func _build_ui() -> void:
@@ -109,6 +121,8 @@ func _build_ui() -> void:
 
 		if index == 0:
 			button.pressed.connect(_show_dashboard)
+		elif index == 1:
+			button.pressed.connect(_show_squad)
 		else:
 			button.pressed.connect(_show_placeholder.bind(menu_items[index]))
 
@@ -117,15 +131,15 @@ func _build_ui() -> void:
 	navigation.add_child(spacer)
 	navigation.add_child(_make_label("Demo veri seti\nGerçek oyuncu verisi henüz yok", 12, COLOR_MUTED))
 
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_child(scroll)
+	content_scroll = ScrollContainer.new()
+	content_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(content_scroll)
 
 	var content := VBoxContainer.new()
 	content.custom_minimum_size = Vector2(880, 0)
 	content.add_theme_constant_override("separation", 14)
-	scroll.add_child(content)
+	content_scroll.add_child(content)
 
 	var dashboard_header := HBoxContainer.new()
 	content.add_child(dashboard_header)
@@ -191,6 +205,11 @@ func _build_ui() -> void:
 	table_grid.add_theme_constant_override("v_separation", 4)
 	table_box.add_child(table_grid)
 
+	dashboard_nodes = content.get_children()
+	squad_view = SquadViewScript.new()
+	squad_view.visible = false
+	content.add_child(squad_view)
+
 func _refresh_ui() -> void:
 	var rows: Array = league.get_table()
 	if rows.is_empty():
@@ -225,10 +244,11 @@ func _refresh_ui() -> void:
 
 	_render_table(rows)
 
-func _set_data_error_state() -> void:
+func _set_data_error_state(message: String = "") -> void:
 	data_status_label.text = "Veri paketi yüklenemedi"
 	play_button.disabled = true
-	result_label.text = "Oyun başlatılamadı: %s" % data_pack.error_message
+	var resolved_message: String = message if not message.is_empty() else data_pack.error_message
+	result_label.text = "Oyun başlatılamadı: %s" % resolved_message
 
 func _render_table(rows: Array) -> void:
 	for child in table_grid.get_children():
@@ -273,10 +293,23 @@ func _on_play_week_pressed() -> void:
 	_refresh_ui()
 
 func _show_dashboard() -> void:
+	_set_screen(true)
 	result_label.text = "Genel bakış aktif. Haftayı oynatarak simülasyonu ilerletebilirsin."
 
+func _show_squad() -> void:
+	_set_screen(false)
+
 func _show_placeholder(screen_name: String) -> void:
+	_set_screen(true)
 	result_label.text = "%s ekranı sonraki geliştirme diliminde açılacak." % screen_name
+
+func _set_screen(show_dashboard: bool) -> void:
+	for node in dashboard_nodes:
+		node.visible = show_dashboard
+	if squad_view != null:
+		squad_view.visible = not show_dashboard
+	if content_scroll != null:
+		content_scroll.scroll_vertical = 0
 
 func _add_stat_card(parent: GridContainer, title_text: String, value_text: String, accent: Color) -> Label:
 	var panel := PanelContainer.new()

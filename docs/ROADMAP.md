@@ -21,6 +21,9 @@
 - Python validator ve 9 otomatik veri sözleşmesi testi
 - Godot runtime için `DataPack` yükleyicisi
 - Kaynak tipi, sezon ve şema sürümü metadata alanları
+- Çalışan Kadro ekranı
+- Deterministik 4-4-2 ilk 11 ve yedek kulübesi state'i
+- İki oyuncuya sırayla basarak starter/bench değişimi
 
 ## Faz 1: Veri sözleşmesi — sıradaki işler
 
@@ -32,8 +35,7 @@
 ## Faz 2: Menajerlik çekirdeği
 
 - Takım seçme
-- Kadro listesi
-- İlk 11 ve yedek kulübesi
+- Takım seçimini tüm lig takımlarına açma
 - Pozisyon uygunluğu
 - Formasyon ve rol seçimi
 - Antrenman planı

@@ -14,6 +14,7 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - 18 takım için 324 oyuncudan oluşan sentetik veri paketi
 - Sezon kurallarını ayrı JSON paketi olarak yükleme
 - Veri paketi generator'ı ve Python doğrulama testleri
+- Çalışan Kadro ekranı, 4-4-2 ilk 11 ve yedek oyuncu değişimi
 - Araştırma, veri politikası ve geliştirme yol haritası
 
 Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri ve oyuncu attribute'ları yalnızca maç motoru ile menajerlik ekranlarını geliştirmek için hazırlanmış sentetik prototip varsayımlarıdır.
@@ -32,6 +33,8 @@ Veri paketi kontrolü için:
 python tools/generate_synthetic_data.py
 python tools/validate_data_pack.py
 python tools/test_data_pack.py
+godot --headless --path . --script res://tests/squad_state_test.gd
+godot --headless --path . --script res://tests/main_scene_smoke_test.gd
 ```
 
 ## Teknik karar
