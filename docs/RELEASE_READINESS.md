@@ -29,6 +29,8 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
   açılış/kapanış smoke testi.
 - [x] Portable Windows ZIP paketi ve taze geçici klasörden paket runtime smoke
   testi.
+- [x] Tek komutlu yerel doğrulama: 9 Godot testi, editor parse, Python veri
+  kontrolleri ve Windows release zinciri.
 - [ ] Temiz makinede açılış, temel kullanıcı akışı, installer ve code-signing
   testi.
 - [x] Credits, lisans sınırları, sentetik veri bildirimi ve kullanıcıya görünür

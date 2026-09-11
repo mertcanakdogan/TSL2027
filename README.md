@@ -57,6 +57,14 @@ Portable Windows paketini oluşturmak ve temiz bir klasörden doğrulamak için:
 Paket `dist/TSL2027-windows-x64.zip` altında oluşur ve executable ile birlikte
 README, MIT lisansı ve veri politikasını taşır.
 
+Tüm yerel doğrulamayı tek komutla çalıştırmak için:
+
+```powershell
+.\tools\verify_project.ps1 -GodotPath "C:\path\to\Godot_v4.7.2-stable_win64.exe"
+```
+
+Windows export şablonları olmayan ortamlar için `-SkipWindowsRelease` kullanılabilir.
+
 Kayıt sistemi `user://tsl2027_save.json` için geçici yazma ve `.bak` yedeği
 kullanır; bozuk ana JSON bulunduğunda geçerli yedeğe dönmeyi dener.
 İlk 11 oyuncuları her oynanan haftadan sonra kondisyon kaybeder; yedek ve

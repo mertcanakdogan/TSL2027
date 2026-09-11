@@ -15,3 +15,4 @@
 | 2026-09-11 | decision | [Credits and data policy boundary](./credits-data-policy-boundary.md) | Read-only in-game attribution separates MIT source-code scope from synthetic and future real-data content. |
 | 2026-09-11 | decision | [Atomic save and backup boundary](./atomic-save-backup-boundary.md) | SaveGame commits through a temporary file and retains a backup for malformed-primary recovery. |
 | 2026-09-11 | decision | [Player condition and fatigue boundary](./player-condition-fatigue-boundary.md) | SquadState owns bounded deterministic condition and SaveGame schema 4 persists it. |
+| 2026-09-11 | decision | [Full verification command boundary](./full-verification-command-boundary.md) | One PowerShell entry point runs core tests and the Windows release smoke chain. |
