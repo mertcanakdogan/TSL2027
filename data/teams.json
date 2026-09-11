@@ -1,5 +1,7 @@
 {
+  "schema_version": "0.1.0",
   "season": "2026-2027",
+  "source_type": "synthetic",
   "source_note": "Takım adları 2026-2027 Süper Lig fikstüründeki kulüplerden alınan prototip kimlikleridir. strength değerleri resmi rating değildir ve oyun dengelemesi için sentetik olarak belirlenmiştir.",
   "teams": [
     {"id": "galatasaray", "name": "Galatasaray", "strength": 84},

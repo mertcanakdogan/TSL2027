@@ -9,6 +9,28 @@ Bu klasör şu an yalnızca prototip verisi içerir.
 - Güç değerleri yalnızca maç motorunun çalıştığını göstermek için sentetik olarak atanmıştır.
 - Logo, forma, fotoğraf, oyuncu profili veya ham sağlayıcı API çıktısı içermez.
 
+## players.json
+
+- `tools/generate_synthetic_data.py` tarafından `teams.json` içinden deterministik olarak üretilir.
+- 18 takımın her biri için 18 sentetik oyuncu içerir: 2 GK, 6 DF, 6 MF ve 4 FW.
+- Attribute'lar pozisyona göre ayrılır ve 1–99 aralığında prototip değerlerdir.
+- İsimler, kimlikler ve attribute'lar gerçek oyuncu kaydı veya resmi rating değildir.
+
+## game_rules.json
+
+- Lig takım sayısı, hafta sayısı, maç günü kadro sınırı ve oyuncu değişikliği gibi kuralları runtime'dan ayırır.
+- Kural alanları ileride farklı sezon sürümlerinin aynı runtime tarafından yüklenebilmesi için JSON'da tutulur.
+
+## Üretim ve doğrulama
+
+```powershell
+python tools/generate_synthetic_data.py
+python tools/validate_data_pack.py
+python tools/test_data_pack.py
+```
+
+Generator ağ kullanmaz ve aynı `teams.json` ile aynı çıktıyı üretir. Gerçek sağlayıcı verisi `data/raw/` veya `data/private/` altında tutulacak; bu dosyaların yerine geçirilmemelidir.
+
 ## İlerideki veri akışı
 
 1. Kaynağın kullanım şartları ve dağıtım hakkı kontrol edilir.

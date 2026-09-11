@@ -1,6 +1,7 @@
 extends Control
 
 const LeagueStateScript = preload("res://scripts/core/league_state.gd")
+const DataPackScript = preload("res://scripts/core/data_pack.gd")
 
 const COLOR_BACKGROUND := Color(0.05098, 0.058824, 0.078431, 1.0)
 const COLOR_PANEL := Color(0.090196, 0.105882, 0.137255, 1.0)
@@ -22,23 +23,30 @@ var user_position_value: Label
 var upcoming_label: Label
 var result_label: Label
 var play_button: Button
+var data_status_label: Label
+var data_pack
 
 func _ready() -> void:
-	var team_records: Array = _load_team_data()
+	data_pack = DataPackScript.new()
+	var data_loaded: bool = data_pack.load_from_files(
+		"res://data/teams.json",
+		"res://data/players.json",
+		"res://data/game_rules.json"
+	)
+	_build_ui()
+	if not data_loaded:
+		_set_data_error_state()
+		return
+
+	var team_records: Array = data_pack.teams
 	league = LeagueStateScript.new()
 	league.initialize(team_records, 2026)
-	_build_ui()
+	data_status_label.text = "%d takım • %d sentetik oyuncu • şema %s" % [
+		data_pack.teams.size(),
+		data_pack.players.size(),
+		data_pack.schema_version
+	]
 	_refresh_ui()
-
-func _load_team_data() -> Array:
-	var file := FileAccess.open("res://data/teams.json", FileAccess.READ)
-	if file == null:
-		return []
-
-	var payload = JSON.parse_string(file.get_as_text())
-	if typeof(payload) == TYPE_DICTIONARY:
-		return payload.get("teams", [])
-	return []
 
 func _build_ui() -> void:
 	var background := ColorRect.new()
@@ -68,6 +76,8 @@ func _build_ui() -> void:
 	header.add_child(title_box)
 	title_box.add_child(_make_label("TSL2027", 30, COLOR_TEXT))
 	title_box.add_child(_make_label("Trendyol Süper Lig 2026/27 | İlk oynanabilir prototip", 14, COLOR_MUTED))
+	data_status_label = _make_label("Veri paketi yükleniyor", 12, COLOR_MUTED)
+	title_box.add_child(data_status_label)
 
 	week_label = _make_label("Maç haftası 1/34", 16, COLOR_MUTED)
 	week_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -214,6 +224,11 @@ func _refresh_ui() -> void:
 		]
 
 	_render_table(rows)
+
+func _set_data_error_state() -> void:
+	data_status_label.text = "Veri paketi yüklenemedi"
+	play_button.disabled = true
+	result_label.text = "Oyun başlatılamadı: %s" % data_pack.error_message
 
 func _render_table(rows: Array) -> void:
 	for child in table_grid.get_children():

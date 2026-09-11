@@ -13,13 +13,21 @@
 - İlk dashboard arayüzü
 - Veri ve lisans politikası
 
-## Faz 1: Veri sözleşmesi
+### Faz 1: Veri sözleşmesi — ilk alt dilim tamamlandı
 
-- Team, Player, Staff, Venue ve CompetitionRules şemalarının yazılması
-- JSON şema doğrulaması
-- Sentetik 18 takım için oyuncu kadrolarının üretilmesi
+- Deterministik sentetik `Player` veri paketi
+- Pozisyona göre attribute kümeleri ve takım-kadro referansları
+- `CompetitionRules` JSON paketi
+- Python validator ve 9 otomatik veri sözleşmesi testi
+- Godot runtime için `DataPack` yükleyicisi
+- Kaynak tipi, sezon ve şema sürümü metadata alanları
+
+## Faz 1: Veri sözleşmesi — sıradaki işler
+
+- `Staff` ve `Venue` şemalarının yazılması
 - Kulüp ekonomisi için temel alanların eklenmesi
-- Kaynak, tarih ve versiyon metadata yapısı
+- A takım kayıt kurallarını gerçek kadro akışına bağlayan doğrulama
+- Lisanslı veri import'u için kaynak, çekim tarihi ve dönüştürme sürümü alanlarının genişletilmesi
 
 ## Faz 2: Menajerlik çekirdeği
 
