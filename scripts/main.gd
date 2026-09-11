@@ -3,7 +3,9 @@ extends Control
 const LeagueStateScript = preload("res://scripts/core/league_state.gd")
 const DataPackScript = preload("res://scripts/core/data_pack.gd")
 const SquadStateScript = preload("res://scripts/core/squad_state.gd")
+const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
 const SquadViewScript = preload("res://scripts/ui/squad_view.gd")
+const TacticsViewScript = preload("res://scripts/ui/tactics_view.gd")
 
 const COLOR_BACKGROUND := Color(0.05098, 0.058824, 0.078431, 1.0)
 const COLOR_PANEL := Color(0.090196, 0.105882, 0.137255, 1.0)
@@ -29,6 +31,8 @@ var data_status_label: Label
 var data_pack
 var squad_state
 var squad_view
+var tactics_state
+var tactics_view
 var dashboard_nodes: Array = []
 var content_scroll: ScrollContainer
 
@@ -50,6 +54,11 @@ func _ready() -> void:
 	if not squad_loaded:
 		_set_data_error_state(squad_state.error_message)
 		return
+	tactics_state = TacticsStateScript.new()
+	var tactics_loaded: bool = tactics_state.initialize()
+	if not tactics_loaded:
+		_set_data_error_state(tactics_state.error_message)
+		return
 	league = LeagueStateScript.new()
 	league.initialize(team_records, 2026)
 	data_status_label.text = "%d takım • %d sentetik oyuncu • şema %s" % [
@@ -58,6 +67,7 @@ func _ready() -> void:
 		data_pack.schema_version
 	]
 	squad_view.setup(squad_state)
+	tactics_view.setup(tactics_state)
 	_refresh_ui()
 
 func _build_ui() -> void:
@@ -123,6 +133,8 @@ func _build_ui() -> void:
 			button.pressed.connect(_show_dashboard)
 		elif index == 1:
 			button.pressed.connect(_show_squad)
+		elif index == 2:
+			button.pressed.connect(_show_tactics)
 		else:
 			button.pressed.connect(_show_placeholder.bind(menu_items[index]))
 
@@ -209,6 +221,9 @@ func _build_ui() -> void:
 	squad_view = SquadViewScript.new()
 	squad_view.visible = false
 	content.add_child(squad_view)
+	tactics_view = TacticsViewScript.new()
+	tactics_view.visible = false
+	content.add_child(tactics_view)
 
 func _refresh_ui() -> void:
 	var rows: Array = league.get_table()
@@ -293,21 +308,27 @@ func _on_play_week_pressed() -> void:
 	_refresh_ui()
 
 func _show_dashboard() -> void:
-	_set_screen(true)
+	_set_screen("dashboard")
 	result_label.text = "Genel bakış aktif. Haftayı oynatarak simülasyonu ilerletebilirsin."
 
 func _show_squad() -> void:
-	_set_screen(false)
+	_set_screen("squad")
+
+func _show_tactics() -> void:
+	_set_screen("tactics")
 
 func _show_placeholder(screen_name: String) -> void:
-	_set_screen(true)
+	_set_screen("dashboard")
 	result_label.text = "%s ekranı sonraki geliştirme diliminde açılacak." % screen_name
 
-func _set_screen(show_dashboard: bool) -> void:
+func _set_screen(screen_name: String) -> void:
+	var show_dashboard: bool = screen_name == "dashboard"
 	for node in dashboard_nodes:
 		node.visible = show_dashboard
 	if squad_view != null:
-		squad_view.visible = not show_dashboard
+		squad_view.visible = screen_name == "squad"
+	if tactics_view != null:
+		tactics_view.visible = screen_name == "tactics"
 	if content_scroll != null:
 		content_scroll.scroll_vertical = 0
 

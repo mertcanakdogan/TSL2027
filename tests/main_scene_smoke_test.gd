@@ -10,17 +10,33 @@ func _run() -> void:
 	scene._ready()
 
 	var squad_view = scene.get("squad_view")
+	var tactics_view = scene.get("tactics_view")
+	var tactics_state = scene.get("tactics_state")
 	var dashboard_nodes: Array = scene.get("dashboard_nodes")
 	_check(squad_view != null, "main scene should create SquadView")
+	_check(tactics_view != null, "main scene should create TacticsView")
+	_check(tactics_state != null, "main scene should create TacticsState")
+	_check(String(tactics_state.formation) == "4-4-2", "main scene should use the default formation")
 	_check(not squad_view.visible, "dashboard should be visible by default")
+	_check(not tactics_view.visible, "tactics view should be hidden by default")
 	_check(dashboard_nodes.size() > 0, "main scene should register dashboard nodes")
 
 	scene.call("_show_squad")
 	_check(squad_view.visible, "Kadro action should show SquadView")
 	_check(not dashboard_nodes[0].visible, "Kadro action should hide dashboard nodes")
 
+	scene.call("_show_tactics")
+	_check(tactics_view.visible, "Taktikler action should show TacticsView")
+	_check(not squad_view.visible, "Taktikler action should hide SquadView")
+	_check(not dashboard_nodes[0].visible, "Taktikler action should hide dashboard nodes")
+	tactics_view.call("_on_formation_selected", 1)
+	_check(String(tactics_state.formation) == "4-3-3", "Taktikler view should update formation state")
+	tactics_view.call("_on_parameter_changed", 80.0, "tempo")
+	_check(int(tactics_state.tempo) == 80, "Taktikler view should update numeric state")
+
 	scene.call("_show_dashboard")
 	_check(not squad_view.visible, "dashboard action should hide SquadView")
+	_check(not tactics_view.visible, "dashboard action should hide TacticsView")
 	_check(dashboard_nodes[0].visible, "dashboard action should show dashboard nodes")
 
 	var league = scene.get("league")

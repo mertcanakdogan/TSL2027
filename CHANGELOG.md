@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Functional Kadro screen with a deterministic 4-4-2 starting XI and bench swap flow.
+- Functional Taktikler screen with validated formation, mentality, marking, and bounded intensity controls.
 - Headless Godot tests for squad state and main-scene screen switching.
 - Deterministic synthetic player data for all 18 prototype teams.
 - Versioned competition rules data pack for the 2026-2027 prototype season.
@@ -16,3 +17,4 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - The dashboard now loads its team source through the runtime data pack and shows the loaded synthetic-player count.
+- Main-screen navigation now distinguishes dashboard, Kadro, and Taktikler views instead of treating Taktikler as a placeholder.

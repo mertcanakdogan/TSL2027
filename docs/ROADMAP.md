@@ -24,6 +24,8 @@
 - Çalışan Kadro ekranı
 - Deterministik 4-4-2 ilk 11 ve yedek kulübesi state'i
 - İki oyuncuya sırayla basarak starter/bench değişimi
+- Açık değer sözleşmesine sahip Taktikler ekranı
+- Diziliş, zihniyet, markaj ve 0–100 taktik yoğunluklarının oturum state'i
 
 ## Faz 1: Veri sözleşmesi — sıradaki işler
 
@@ -38,6 +40,7 @@
 - Takım seçimini tüm lig takımlarına açma
 - Pozisyon uygunluğu
 - Formasyon ve rol seçimi
+- Formasyon seçimini ilk 11 pozisyon uygunluğu ile doğrulama
 - Antrenman planı
 - Moral, form ve kondisyon
 - Sakatlık ve cezalar
@@ -46,6 +49,7 @@
 
 - Oyuncu özelliklerinin simülasyona dahil edilmesi
 - Taktik eşleşmeleri
+- Taktik state değerlerinin deterministik maç etkilerine bağlanması
 - Yorgunluk ve fikstür yoğunluğu
 - Oyuncu değişiklikleri
 - Kart ve sakatlık olayları

@@ -6,17 +6,17 @@ TSL2027: Godot 4 + GDScript ile geliştirilen, Trendyol Süper Lig 2026/27 temal
 
 ## Status
 
-Done — Kadro/ilk 11 slice tamamlandı; feature branch commit ve PR akışı için hazır.
+Done — Kadro/ilk 11 ve Taktikler state/UI slice'ları tamamlandı; testleri yeşil, feature branch/PR doğrulaması bekliyor.
 
 ## Last Session Summary
 
-2026-09-11 — Veri paketi üzerine `SquadState`, gerçek Kadro ekranı, deterministik 4-4-2 ilk 11, yedek kulübesi ve iki oyunculu starter/bench değişimi eklendi. Godot state testi, main-scene smoke testi, Godot headless parse/çalıştırma ve Python 9/9 veri testleri geçti.
+2026-09-11 — Veri paketi üzerine `SquadState`, gerçek Kadro ekranı, deterministik 4-4-2 ilk 11, yedek kulübesi ve iki oyunculu starter/bench değişimi eklendi. Ardından `TacticsState` ve gerçek Taktikler ekranı eklendi; diziliş, zihniyet, markaj ve 0–100 değerleri doğrulanıyor.
 
 ## Next Steps
 
-1. Taktik veri sözleşmesini yaz: formation, mentality, tempo, press intensity ve defensive line.
-2. Formation/role legality testlerini ekle; mevcut 4-4-2 baseline'ını tactics state'e taşı.
-3. Oyuncu seçimi ve taktik değerlerini maç motoruna bağlamadan önce deterministik eşleşme senaryoları oluştur.
+1. Formasyon/rol uygunluğu ve taktiklerin `SquadState` ile ilişkisi için test sözleşmesi yaz.
+2. Oyuncu özellikleri ve taktik state'i maç motoruna bağlayan deterministik eşleşme senaryoları oluştur.
+3. Save/load çekirdeğini, veri paketi sürümü ve migration kontrolüyle ekle.
 
 ## Blockers
 
