@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Credits / Veri ekranı artık MIT kaynak kodu kapsamını ve sentetik veri sınırını oyun içinde görünür kılıyor.
 - Her oyuncu için pozisyona göre üç alternatif rol skoru ve attack/defense/control profil puanları eklendi; ligdeki varsayılan ilk 11 bağlamları artık maç motoruna aktarılıyor.
 - Portable Windows ZIP paketleme ve taze klasörden paket runtime smoke doğrulaması eklendi.
+- SaveGame artık geçici dosya commit'i, `.bak` yedeği ve bozuk ana kayıttan geri dönüş raporlaması kullanıyor.
 - Headless Godot tests for squad state and main-scene screen switching.
 - Deterministic synthetic player data for all 18 prototype teams.
 - Versioned competition rules data pack for the 2026-2027 prototype season.

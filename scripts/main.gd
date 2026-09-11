@@ -420,7 +420,10 @@ func _on_load_pressed() -> void:
 	transfer_view.setup(transfer_market_state, economy_state, squad_state, managed_team_name)
 	fixture_view.setup(league, managed_team_id, managed_team_name)
 	_refresh_ui()
-	result_label.text = "Oyun yüklendi. Hafta %d/%d" % [min(league.current_week, 34), 34]
+	if save_game.last_load_source == "backup":
+		result_label.text = "Ana kayıt bozuktu; yedek kayıt yüklendi. Hafta %d/%d" % [min(league.current_week, 34), 34]
+	else:
+		result_label.text = "Oyun yüklendi. Hafta %d/%d" % [min(league.current_week, 34), 34]
 
 func _render_table(rows: Array) -> void:
 	for child in table_grid.get_children():
