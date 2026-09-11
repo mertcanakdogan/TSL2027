@@ -487,6 +487,15 @@ func _on_play_week_pressed() -> void:
 			if not event_summary.is_empty():
 				lines.append("Olaylar: %s" % event_summary)
 
+	var season_summary: Dictionary = league.get_season_summary()
+	if not season_summary.is_empty():
+		var champion: Dictionary = season_summary.get("champion", {})
+		var relegated_names: Array = []
+		for relegated_team in season_summary.get("relegated", []):
+			relegated_names.append(String(relegated_team.get("name", "?")))
+		lines.append("Sezon tamamlandı. Şampiyon: %s" % String(champion.get("name", "?")))
+		lines.append("Küme düşenler: %s" % ", ".join(relegated_names))
+
 	result_label.text = "\n".join(lines)
 	_refresh_ui()
 

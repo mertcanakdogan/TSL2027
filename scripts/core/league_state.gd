@@ -246,6 +246,21 @@ func _table_sorter(a: Dictionary, b: Dictionary) -> bool:
 		return int(a["goals_for"]) > int(b["goals_for"])
 	return int(a["strength"]) > int(b["strength"])
 
+func get_season_summary() -> Dictionary:
+	if current_week <= 34:
+		return {}
+	var table: Array = get_table()
+	if table.is_empty():
+		return {}
+	var relegated: Array = []
+	var relegation_start: int = max(1, table.size() - 3)
+	for index in range(relegation_start, table.size()):
+		relegated.append(table[index].duplicate(true))
+	return {
+		"champion": table[0].duplicate(true),
+		"relegated": relegated
+	}
+
 func get_next_fixture_for_team(team_id: String) -> Dictionary:
 	for fixture in fixtures:
 		if bool(fixture["played"]):
