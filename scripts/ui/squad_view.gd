@@ -78,11 +78,15 @@ func _refresh_ui() -> void:
 
 	var starting: Array = squad_state.get_starting_xi()
 	var bench: Array = squad_state.get_bench()
+	var minimum_condition: int = 100
+	for player in squad_state.get_roster():
+		minimum_condition = min(minimum_condition, int(player.get("condition", 100)))
 	summary_label.text = "%d oyuncu • İlk 11: %d • Yedek: %d" % [
 		squad_state.get_roster().size(),
 		starting.size(),
 		bench.size()
 	]
+	summary_label.text += " • Minimum kondisyon: %d" % minimum_condition
 	_clear_list(starting_list)
 	_clear_list(bench_list)
 	_clear_list(roster_list)
@@ -109,10 +113,11 @@ func _add_group_panel(parent: HBoxContainer, title: String, border_color: Color)
 	return list
 
 func _add_group_player(parent: VBoxContainer, player: Dictionary) -> void:
-	var text := "%s  |  %s  |  %s yaş" % [
+	var text := "%s  |  %s  |  %s yaş  |  Kondisyon %d" % [
 		String(player.get("display_name", "Oyuncu")),
 		String(player.get("position", "?")),
-		str(player.get("age", "?"))
+		str(player.get("age", "?")),
+		int(player.get("condition", 100))
 	]
 	parent.add_child(_make_label("%s  |  %s" % [text, _role_text(player)], 13, COLOR_TEXT))
 
@@ -125,10 +130,11 @@ func _add_roster_player(parent: VBoxContainer, player: Dictionary) -> void:
 	parent.add_child(row)
 
 	var player_label := _make_label(
-		"%-30s %-3s  %2s yaş  %s" % [
+		"%-30s %-3s  %2s yaş  Kondisyon %3d  %s" % [
 			String(player.get("display_name", "Oyuncu")),
 			String(player.get("position", "?")),
 			str(player.get("age", "?")),
+			int(player.get("condition", 100)),
 			"%s  %s" % [group_text, _role_text(player)]
 		],
 		13,

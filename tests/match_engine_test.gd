@@ -76,6 +76,12 @@ func _run() -> void:
 	_check(float(attacking_tactical_result["home_defense_strength"]) < float(cautious_tactical_result["home_defense_strength"]), "cautious mentality should raise defense profile against the same opponent")
 	_check(attacking_tactical_result["events"].size() == int(attacking_tactical_result["home_goals"]) + int(attacking_tactical_result["away_goals"]) + int(attacking_tactical_result["match_stats"]["home_yellow_cards"]) + int(attacking_tactical_result["match_stats"]["away_yellow_cards"]), "event count should match goal and card statistics")
 
+	var fatigued_context := {"starting_xi": _build_xi_with_condition(40), "tactics": _balanced_tactics()}
+	var fresh_profile: Dictionary = engine.simulate(home, away, 9090, balanced_context, {})
+	var fatigued_profile: Dictionary = engine.simulate(home, away, 9090, fatigued_context, {})
+	_check(float(fresh_profile["home_attack_strength"]) > float(fatigued_profile["home_attack_strength"]), "low condition should reduce attack profile")
+	_check(float(fresh_profile["home_defense_strength"]) > float(fatigued_profile["home_defense_strength"]), "low condition should reduce defense profile")
+
 	var league = LeagueStateScript.new()
 	league.initialize([home, away], 2026)
 	_check(league.set_team_context("home", attacking_context), "known team context should be accepted")
@@ -102,6 +108,12 @@ func _build_xi(value: int) -> Array:
 			"position": "MF",
 			"attributes": {"passing": value, "decisions": value}
 		})
+	return players
+
+func _build_xi_with_condition(condition: int) -> Array:
+	var players: Array = _build_xi(60)
+	for player in players:
+		player["condition"] = condition
 	return players
 
 func _balanced_tactics() -> Dictionary:

@@ -247,6 +247,15 @@ commit başarısızsa eski kayıt geri alınmaya çalışılır. Ana JSON parse 
 geçerli `.bak` yüklenir ve kullanıcıya bildirilir. Şema/semantic validation
 seçilen payload üzerinde restore işleminden önce çalışır.
 
+### Kondisyon ve yorgunluk
+
+`SquadState` her oyuncu için 0-100 kondisyon tutar. Oynanan haftadan sonra ilk
+11 oyuncuları 8 puan kaybeder; yedekler 5, kullanılmayan kadro oyuncuları 8
+puan toparlar ve değer 100'ü geçemez. Bu state kopyalanmış ilk 11 bağlamına
+gider ve `MatchEngine` düşük kondisyon için bounded profil cezası uygular.
+Kural eğitim, sakatlık veya seyahat simülasyonu değildir; sonraki olay modeli
+gelene kadar basit ve deterministik bir seçim baskısıdır.
+
 ## 8. Oyuncu rolleri ve attribute profilleri
 
 Her pozisyon için üç alternatif rol, pozisyona ait attribute kümelerinin basit

@@ -4,6 +4,10 @@ extends RefCounted
 const FormationRulesScript = preload("res://scripts/core/formation_rules.gd")
 const MAX_ROSTER_SIZE := 28
 const BENCH_SIZE := 7
+const INITIAL_CONDITION := 100
+const STARTING_CONDITION_COST := 8
+const BENCH_CONDITION_RECOVERY := 5
+const UNUSED_CONDITION_RECOVERY := 8
 
 const DEFAULT_STARTING_COUNTS := {
 	"GK": 1,
@@ -17,6 +21,7 @@ var team_id: String = ""
 var roster: Array = []
 var starting_ids: Array = []
 var bench_ids: Array = []
+var condition: Dictionary = {}
 var active_formation: String = "4-4-2"
 var error_message: String = ""
 
@@ -58,6 +63,8 @@ func initialize(team_id_value: String, roster_records: Array, bench_size: int = 
 
 	team_id = team_id_value
 	roster = new_roster
+	for player in roster:
+		condition[String(player["id"])] = INITIAL_CONDITION
 	starting_ids = _build_default_starting_ids()
 	var effective_bench_size: int = min(bench_size, roster.size() - starting_ids.size())
 	for player in roster:
@@ -92,6 +99,7 @@ func add_player(player_record: Dictionary) -> bool:
 		return false
 	var player_id := String(player_record["id"])
 	roster.append(player_record.duplicate(true))
+	condition[player_id] = INITIAL_CONDITION
 	if bench_ids.size() < BENCH_SIZE:
 		bench_ids.append(player_id)
 	error_message = ""
@@ -154,7 +162,26 @@ func get_bench() -> Array:
 	return _records_for_ids(bench_ids)
 
 func get_roster() -> Array:
-	return roster.duplicate(true)
+	var records: Array = []
+	for player in roster:
+		var record: Dictionary = player.duplicate(true)
+		record["condition"] = get_player_condition(String(player.get("id", "")))
+		records.append(record)
+	return records
+
+func get_player_condition(player_id: String) -> int:
+	return clampi(int(condition.get(player_id, INITIAL_CONDITION)), 0, INITIAL_CONDITION)
+
+func apply_match_fatigue() -> void:
+	for player in roster:
+		var player_id: String = String(player.get("id", ""))
+		var current_condition: int = get_player_condition(player_id)
+		if starting_ids.has(player_id):
+			condition[player_id] = max(0, current_condition - STARTING_CONDITION_COST)
+		elif bench_ids.has(player_id):
+			condition[player_id] = min(INITIAL_CONDITION, current_condition + BENCH_CONDITION_RECOVERY)
+		else:
+			condition[player_id] = min(INITIAL_CONDITION, current_condition + UNUSED_CONDITION_RECOVERY)
 
 func get_snapshot() -> Dictionary:
 	return {
@@ -162,7 +189,8 @@ func get_snapshot() -> Dictionary:
 		"formation": active_formation,
 		"roster": roster.duplicate(true),
 		"starting_ids": starting_ids.duplicate(),
-		"bench_ids": bench_ids.duplicate()
+		"bench_ids": bench_ids.duplicate(),
+		"condition": condition.duplicate(true)
 	}
 
 func validate_snapshot(snapshot: Dictionary) -> bool:
@@ -182,6 +210,9 @@ func validate_snapshot(snapshot: Dictionary) -> bool:
 		return _fail("Kadro kaydında starter/bench listesi bulunmuyor.")
 	var saved_starting: Array = snapshot["starting_ids"]
 	var saved_bench: Array = snapshot["bench_ids"]
+	var saved_condition: Dictionary = snapshot.get("condition", {})
+	if typeof(saved_condition) != TYPE_DICTIONARY:
+		return _fail("Kayıt kondisyon state'i sözlük tipinde olmalıdır.")
 	if saved_starting.size() != 11:
 		return _fail("Kayıt ilk 11 için 11 oyuncu içermiyor.")
 	if saved_bench.size() > candidate_roster.size() - saved_starting.size():
@@ -194,6 +225,14 @@ func validate_snapshot(snapshot: Dictionary) -> bool:
 		if not _roster_has_id_in(normalized_id, candidate_roster):
 			return _fail("Kayıt oyuncusu mevcut kadroda bulunmuyor: %s" % normalized_id)
 		seen_ids[normalized_id] = true
+	for player in candidate_roster:
+		var player_id: String = String(player.get("id", ""))
+		var saved_value = saved_condition.get(player_id, INITIAL_CONDITION)
+		if (typeof(saved_value) != TYPE_INT and typeof(saved_value) != TYPE_FLOAT) or float(saved_value) < 0.0 or float(saved_value) > INITIAL_CONDITION:
+			return _fail("Kayıt kondisyon değeri 0-100 aralığında olmalıdır: %s" % player_id)
+	for player_id in saved_condition:
+		if not _roster_has_id_in(String(player_id), candidate_roster):
+			return _fail("Kayıt kondisyonu bilinmeyen oyuncu içeriyor: %s" % player_id)
 	if _position_counts_for_ids(saved_starting, candidate_roster) != get_formation_requirements(saved_formation):
 		return _fail("Kayıt ilk 11'i diziliş pozisyonlarıyla eşleşmiyor.")
 	return true
@@ -203,6 +242,11 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		return false
 	if snapshot.has("roster"):
 		roster = snapshot["roster"].duplicate(true)
+	condition.clear()
+	var saved_condition: Dictionary = snapshot.get("condition", {})
+	for player in roster:
+		var player_id: String = String(player.get("id", ""))
+		condition[player_id] = int(saved_condition.get(player_id, INITIAL_CONDITION))
 	active_formation = String(snapshot.get("formation", "4-4-2"))
 	starting_ids = snapshot["starting_ids"].duplicate()
 	bench_ids = snapshot["bench_ids"].duplicate()
@@ -322,7 +366,9 @@ func _records_for_ids(player_ids: Array) -> Array:
 	for player_id in player_ids:
 		for player in roster:
 			if String(player["id"]) == String(player_id):
-				records.append(player.duplicate(true))
+				var record: Dictionary = player.duplicate(true)
+				record["condition"] = get_player_condition(String(player_id))
+				records.append(record)
 				break
 	return records
 
@@ -340,6 +386,7 @@ func _reset() -> void:
 	roster.clear()
 	starting_ids.clear()
 	bench_ids.clear()
+	condition.clear()
 	active_formation = "4-4-2"
 	error_message = ""
 

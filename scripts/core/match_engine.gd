@@ -6,6 +6,7 @@ const PlayerRoleRulesScript = preload("res://scripts/core/player_role_rules.gd")
 const HOME_ADVANTAGE := 3.0
 const HOME_CONTROL_ADVANTAGE := 1.5
 const LINEUP_STRENGTH_BLEND := 0.35
+const CONDITION_PENALTY_PER_MISSING_POINT := 0.25
 const MENTALITY_MODIFIERS := {
 	"cautious": {"attack": -3.0, "defense": 2.0, "control": -1.0},
 	"balanced": {"attack": 0.0, "defense": 0.0, "control": 0.0},
@@ -223,6 +224,8 @@ func _lineup_profile_ratings(players) -> Dictionary:
 		var ratings: Dictionary = PlayerRoleRulesScript.get_profile_ratings(player)
 		if float(ratings.get("overall", -1.0)) < 0.0:
 			continue
+		for profile_name in ratings:
+			ratings[profile_name] = _condition_adjusted_rating(float(ratings[profile_name]), player)
 		for profile_name in totals:
 			totals[profile_name] += float(ratings[profile_name])
 		player_count += 1
@@ -231,6 +234,10 @@ func _lineup_profile_ratings(players) -> Dictionary:
 	for profile_name in totals:
 		totals[profile_name] /= player_count
 	return totals
+
+func _condition_adjusted_rating(rating: float, player: Dictionary) -> float:
+	var player_condition: float = clampf(float(player.get("condition", 100.0)), 0.0, 100.0)
+	return clampf(rating - ((100.0 - player_condition) * CONDITION_PENALTY_PER_MISSING_POINT), 1.0, 99.0)
 
 func _parameter(tactics: Dictionary, name: String) -> float:
 	return clampf(float(tactics.get(name, 50)), 0.0, 100.0)
