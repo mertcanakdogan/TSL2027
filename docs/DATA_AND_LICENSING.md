@@ -25,7 +25,7 @@ Aşağıdaki içerikler lisans durumu yazılı olarak doğrulanmadan commit edil
 
 ### Kaynak verisi
 
-Ham veri yalnızca yerel veya özel depolama alanında tutulur. \`data/raw/\` ve \`data/private/\` Git tarafından yok sayılır.
+Ham veri yalnızca yerel veya özel depolama alanında tutulur. `data/raw/` ve `data/private/` Git tarafından yok sayılır.
 
 ### Dönüştürülmüş oyun verisi
 
@@ -41,7 +41,7 @@ Dönüştürülmüş veri yalnızca şu bilgilerle birlikte dağıtılabilir:
 
 ### Sentetik prototip verisi
 
-Bu repodaki \`data/teams.json\` dosyasında takım isimleri sezon yapısını göstermek için, \`strength\` değerleri ise yalnızca prototip simülasyonu için kullanılır. Bu değerler resmi rating değildir.
+Bu repodaki `data/teams.json` dosyasında takım isimleri sezon yapısını göstermek için, `strength` değerleri ise yalnızca prototip simülasyonu için kullanılır. Bu değerler resmi rating değildir.
 
 ## Sağlayıcı politikası
 

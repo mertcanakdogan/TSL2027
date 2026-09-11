@@ -19,7 +19,7 @@ Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez
 ## Çalıştırma
 
 1. Godot 4.x stable sürümünü yükle.
-2. Godot Project Manager üzerinden bu klasördeki \`project.godot\` dosyasını içe aktar.
+2. Godot Project Manager üzerinden bu klasördeki `project.godot` dosyasını içe aktar.
 3. Projeyi çalıştır.
 
 Ana ekran açıldığında "Haftayı Oynat" butonu o haftadaki 9 maçı simüle eder ve puan durumunu günceller.
@@ -38,12 +38,12 @@ oluşacağı için ilk aşamada ağır 3D motor veya düşük seviyeli C++ kodu 
 
 ## Klasörler
 
-- \`data/\`: Örnek ve ileride dönüştürülmüş oyun verileri
-- \`docs/\`: Araştırma, lisans politikası ve yol haritası
-- \`scenes/\`: Godot sahneleri
-- \`scripts/core/\`: Fikstür, lig ve maç simülasyonu
-- \`scripts/\`: Godot arayüz kodu
-- \`tools/\`: Harici veri doğrulama araçları
+- `data/`: Örnek ve ileride dönüştürülmüş oyun verileri
+- `docs/`: Araştırma, lisans politikası ve yol haritası
+- `scenes/`: Godot sahneleri
+- `scripts/core/`: Fikstür, lig ve maç simülasyonu
+- `scripts/`: Godot arayüz kodu
+- `tools/`: Harici veri doğrulama araçları
 
 ## Lisans ve veri politikası
 

@@ -121,12 +121,12 @@ func _apply_result(home_id: String, away_id: String, result: Dictionary) -> void
 
 	if home_goals > away_goals:
 		home_row["wins"] += 1
-	home_row["points"] += 3
-	away_row["losses"] += 1
+		home_row["points"] += 3
+		away_row["losses"] += 1
 	elif away_goals > home_goals:
 		away_row["losses"] += 1
-	away_row["wins"] += 1
-	away_row["points"] += 3
+		away_row["wins"] += 1
+		away_row["points"] += 3
 	else:
 		home_row["draws"] += 1
 		away_row["draws"] += 1

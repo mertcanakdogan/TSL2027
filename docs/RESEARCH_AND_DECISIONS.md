@@ -82,10 +82,10 @@ StatsBomb'ın açık veri reposu, seçilmiş lig ve sezonlar için araştırma a
 
 Veri sağlayıcı kodu doğrudan oyuna bağlanmayacak. Aşağıdaki soyutlama kurulacak:
 
-- \`FootballDataProvider\`: dış kaynaktan veri alma arayüzü
-- \`RawDataImporter\`: ham cevabı iç şemaya dönüştürür
-- \`DataValidator\`: zorunlu alanları, tekrarları ve tarihleri kontrol eder
-- \`GameDataPack\`: oyunun kullanacağı sürümlenmiş veri paketi
+- `FootballDataProvider`: dış kaynaktan veri alma arayüzü
+- `RawDataImporter`: ham cevabı iç şemaya dönüştürür
+- `DataValidator`: zorunlu alanları, tekrarları ve tarihleri kontrol eder
+- `GameDataPack`: oyunun kullanacağı sürümlenmiş veri paketi
 
 Bu sayede sağlayıcı değişirse maç motoru ve arayüz değişmek zorunda kalmaz.
 
@@ -225,7 +225,7 @@ TFF'nin 2026-2027 Süper Lig statüsüne göre:
 - Müsabaka isim listesi en fazla 21 futbolcudan oluşur.
 - 2026-2027 transfer ve tescil dönemleri 22 Haziran 2026 - 4 Eylül 2026 ve 1 Ocak 2027 - 5 Şubat 2027 olarak ilan edilmiştir.
 
-Bu kurallar kod içine sabit dağılmayacak. \`CompetitionRules\` benzeri bir yapı içinde sezon sürümüyle tutulacak.
+Bu kurallar kod içine sabit dağılmayacak. `CompetitionRules` benzeri bir yapı içinde sezon sürümüyle tutulacak.
 
 ## Kaynaklar
 
