@@ -72,6 +72,42 @@ func get_bench() -> Array:
 func get_roster() -> Array:
 	return roster.duplicate(true)
 
+func get_snapshot() -> Dictionary:
+	return {
+		"team_id": team_id,
+		"starting_ids": starting_ids.duplicate(),
+		"bench_ids": bench_ids.duplicate()
+	}
+
+func validate_snapshot(snapshot: Dictionary) -> bool:
+	if not snapshot.has("team_id") or String(snapshot["team_id"]) != team_id:
+		return _fail("Kayıt takımı mevcut kadroyla eşleşmiyor.")
+	if typeof(snapshot.get("starting_ids", null)) != TYPE_ARRAY or typeof(snapshot.get("bench_ids", null)) != TYPE_ARRAY:
+		return _fail("Kadro kaydında starter/bench listesi bulunmuyor.")
+	var saved_starting: Array = snapshot["starting_ids"]
+	var saved_bench: Array = snapshot["bench_ids"]
+	if saved_starting.size() != 11:
+		return _fail("Kayıt ilk 11 için 11 oyuncu içermiyor.")
+	if saved_bench.size() > roster.size() - saved_starting.size():
+		return _fail("Kayıt yedek kulübesi mevcut kadrodan büyük.")
+	var seen_ids: Dictionary = {}
+	for player_id in saved_starting + saved_bench:
+		var normalized_id: String = String(player_id)
+		if normalized_id.is_empty() or seen_ids.has(normalized_id):
+			return _fail("Kayıt kadrosunda geçersiz veya tekrarlanan oyuncu var.")
+		if not _roster_has_id(normalized_id):
+			return _fail("Kayıt oyuncusu mevcut kadroda bulunmuyor: %s" % normalized_id)
+		seen_ids[normalized_id] = true
+	return true
+
+func restore_snapshot(snapshot: Dictionary) -> bool:
+	if not validate_snapshot(snapshot):
+		return false
+	starting_ids = snapshot["starting_ids"].duplicate()
+	bench_ids = snapshot["bench_ids"].duplicate()
+	error_message = ""
+	return true
+
 func get_player_group(player_id: String) -> String:
 	if starting_ids.has(player_id):
 		return "starting"
@@ -134,6 +170,12 @@ func _records_for_ids(player_ids: Array) -> Array:
 				records.append(player.duplicate(true))
 				break
 	return records
+
+func _roster_has_id(player_id: String) -> bool:
+	for player in roster:
+		if String(player.get("id", "")) == player_id:
+			return true
+	return false
 
 func _reset() -> void:
 	team_id = ""

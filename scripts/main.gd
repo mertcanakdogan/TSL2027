@@ -8,6 +8,7 @@ const SquadViewScript = preload("res://scripts/ui/squad_view.gd")
 const TacticsViewScript = preload("res://scripts/ui/tactics_view.gd")
 const FixtureViewScript = preload("res://scripts/ui/fixture_view.gd")
 const StandingsViewScript = preload("res://scripts/ui/standings_view.gd")
+const SaveGameScript = preload("res://scripts/core/save_game.gd")
 
 const COLOR_BACKGROUND := Color(0.05098, 0.058824, 0.078431, 1.0)
 const COLOR_PANEL := Color(0.090196, 0.105882, 0.137255, 1.0)
@@ -19,6 +20,7 @@ const COLOR_MUTED := Color(0.62, 0.66, 0.72, 1.0)
 const COLOR_SUCCESS := Color(0.0, 0.588235, 0.431373, 1.0)
 
 const USER_TEAM_ID := "kocaelispor"
+const SAVE_PATH := "user://tsl2027_save.json"
 
 var league
 var table_grid: GridContainer
@@ -29,6 +31,8 @@ var user_position_value: Label
 var upcoming_label: Label
 var result_label: Label
 var play_button: Button
+var save_button: Button
+var load_button: Button
 var data_status_label: Label
 var data_pack
 var squad_state
@@ -37,6 +41,7 @@ var tactics_state
 var tactics_view
 var fixture_view
 var standings_view
+var save_game
 var dashboard_nodes: Array = []
 var content_scroll: ScrollContainer
 
@@ -66,6 +71,7 @@ func _ready() -> void:
 	league = LeagueStateScript.new()
 	league.initialize(team_records, 2026)
 	_sync_managed_context()
+	save_game = SaveGameScript.new()
 	data_status_label.text = "%d takım • %d sentetik oyuncu • şema %s" % [
 		data_pack.teams.size(),
 		data_pack.players.size(),
@@ -200,6 +206,22 @@ func _build_ui() -> void:
 	play_button.pressed.connect(_on_play_week_pressed)
 	upcoming_box.add_child(play_button)
 
+	var save_actions := HBoxContainer.new()
+	save_actions.add_theme_constant_override("separation", 8)
+	upcoming_box.add_child(save_actions)
+	save_button = Button.new()
+	save_button.text = "Kaydet"
+	save_button.custom_minimum_size = Vector2(0, 36)
+	save_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	save_button.pressed.connect(_on_save_pressed)
+	save_actions.add_child(save_button)
+	load_button = Button.new()
+	load_button.text = "Yükle"
+	load_button.custom_minimum_size = Vector2(0, 36)
+	load_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	load_button.pressed.connect(_on_load_pressed)
+	save_actions.add_child(load_button)
+
 	var result_panel := PanelContainer.new()
 	result_panel.add_theme_stylebox_override("panel", _make_panel_style(COLOR_PANEL, COLOR_PANEL_ALT))
 	content.add_child(result_panel)
@@ -283,8 +305,35 @@ func _refresh_ui() -> void:
 func _set_data_error_state(message: String = "") -> void:
 	data_status_label.text = "Veri paketi yüklenemedi"
 	play_button.disabled = true
+	if save_button != null:
+		save_button.disabled = true
+	if load_button != null:
+		load_button.disabled = true
 	var resolved_message: String = message if not message.is_empty() else data_pack.error_message
 	result_label.text = "Oyun başlatılamadı: %s" % resolved_message
+
+func _on_save_pressed() -> void:
+	_sync_managed_context()
+	if save_game == null:
+		result_label.text = "Oyun kaydedilemedi: kayıt sistemi hazır değil."
+		return
+	if not save_game.save_to_file(SAVE_PATH, league, squad_state, tactics_state, data_pack.schema_version):
+		result_label.text = "Oyun kaydedilemedi: %s" % save_game.error_message
+		return
+	result_label.text = "Oyun kaydedildi. Hafta %d/%d" % [min(league.current_week, 34), 34]
+
+func _on_load_pressed() -> void:
+	if save_game == null:
+		result_label.text = "Oyun yüklenemedi: kayıt sistemi hazır değil."
+		return
+	if not save_game.load_from_file(SAVE_PATH, league, squad_state, tactics_state, data_pack.schema_version, USER_TEAM_ID):
+		result_label.text = "Oyun yüklenemedi: %s" % save_game.error_message
+		return
+	_sync_managed_context()
+	squad_view.setup(squad_state)
+	tactics_view.setup(tactics_state)
+	_refresh_ui()
+	result_label.text = "Oyun yüklendi. Hafta %d/%d" % [min(league.current_week, 34), 34]
 
 func _render_table(rows: Array) -> void:
 	for child in table_grid.get_children():
