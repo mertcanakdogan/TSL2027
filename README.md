@@ -15,6 +15,7 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - Sezon kurallarını ayrı JSON paketi olarak yükleme
 - Veri paketi generator'ı ve Python doğrulama testleri
 - Çalışan Kadro ekranı, 4-4-2 ilk 11 ve yedek oyuncu değişimi
+- Çalışan Taktikler ekranı: diziliş, zihniyet, markaj ve 0-100 taktik yoğunlukları
 - Araştırma, veri politikası ve geliştirme yol haritası
 
 Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri ve oyuncu attribute'ları yalnızca maç motoru ile menajerlik ekranlarını geliştirmek için hazırlanmış sentetik prototip varsayımlarıdır.
@@ -34,6 +35,7 @@ python tools/generate_synthetic_data.py
 python tools/validate_data_pack.py
 python tools/test_data_pack.py
 godot --headless --path . --script res://tests/squad_state_test.gd
+godot --headless --path . --script res://tests/tactics_state_test.gd
 godot --headless --path . --script res://tests/main_scene_smoke_test.gd
 ```
 
@@ -54,7 +56,7 @@ oluşacağı için ilk aşamada ağır 3D motor veya düşük seviyeli C++ kodu 
 - `data/`: Örnek ve ileride dönüştürülmüş oyun verileri
 - `docs/`: Araştırma, lisans politikası ve yol haritası
 - `scenes/`: Godot sahneleri
-- `scripts/core/`: Veri paketi, fikstür, lig ve maç simülasyonu
+- `scripts/core/`: Veri paketi, fikstür, lig, taktik ve maç simülasyonu
 - `scripts/`: Godot arayüz kodu
 - `tools/`: Harici veri doğrulama araçları
 
@@ -69,5 +71,6 @@ MIT License, üçüncü taraf futbol verilerine, kulüp logolarına, fotoğrafla
 - [Araştırma ve teknik kararlar](docs/RESEARCH_AND_DECISIONS.md)
 - [Veri ve lisans politikası](docs/DATA_AND_LICENSING.md)
 - [Yol haritası](docs/ROADMAP.md)
+- [Canlıya alma hazırlık kapıları](docs/RELEASE_READINESS.md)
 - [Örnek veri notları](data/README.md)
 - [Değişiklik günlüğü](CHANGELOG.md)
