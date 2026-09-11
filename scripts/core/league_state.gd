@@ -178,3 +178,10 @@ func get_next_fixture_for_team(team_id: String) -> Dictionary:
 		if String(fixture["home_id"]) == team_id or String(fixture["away_id"]) == team_id:
 			return fixture
 	return {}
+
+func get_fixtures_for_team(team_id: String) -> Array:
+	var team_fixtures: Array = []
+	for fixture in fixtures:
+		if String(fixture["home_id"]) == team_id or String(fixture["away_id"]) == team_id:
+			team_fixtures.append(fixture.duplicate(true))
+	return team_fixtures

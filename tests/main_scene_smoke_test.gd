@@ -12,9 +12,13 @@ func _run() -> void:
 	var squad_view = scene.get("squad_view")
 	var tactics_view = scene.get("tactics_view")
 	var tactics_state = scene.get("tactics_state")
+	var fixture_view = scene.get("fixture_view")
+	var standings_view = scene.get("standings_view")
 	var dashboard_nodes: Array = scene.get("dashboard_nodes")
 	_check(squad_view != null, "main scene should create SquadView")
 	_check(tactics_view != null, "main scene should create TacticsView")
+	_check(fixture_view != null, "main scene should create FixtureView")
+	_check(standings_view != null, "main scene should create StandingsView")
 	_check(tactics_state != null, "main scene should create TacticsState")
 	_check(String(tactics_state.formation) == "4-4-2", "main scene should use the default formation")
 	_check(not squad_view.visible, "dashboard should be visible by default")
@@ -34,6 +38,16 @@ func _run() -> void:
 	tactics_view.call("_on_parameter_changed", 80.0, "tempo")
 	_check(int(tactics_state.tempo) == 80, "Taktikler view should update numeric state")
 
+	scene.call("_show_fixtures")
+	_check(fixture_view.visible, "Fikstür action should show FixtureView")
+	_check(not standings_view.visible, "Fikstür action should hide StandingsView")
+	_check(fixture_view.fixture_list.get_child_count() == 34, "FixtureView should list 34 managed fixtures")
+
+	scene.call("_show_standings")
+	_check(standings_view.visible, "Lig Tablosu action should show StandingsView")
+	_check(not fixture_view.visible, "Lig Tablosu action should hide FixtureView")
+	_check(standings_view.table_grid.get_child_count() == 8 + (18 * 8), "StandingsView should render all teams")
+
 	scene.call("_show_dashboard")
 	_check(not squad_view.visible, "dashboard action should hide SquadView")
 	_check(not tactics_view.visible, "dashboard action should hide TacticsView")
@@ -48,6 +62,8 @@ func _run() -> void:
 	scene.call("_on_play_week_pressed")
 	_check(int(league.current_week) == initial_week + 1, "weekly simulation should still advance one week")
 	_check(league.fixtures[0]["result"].has("home_attack_strength"), "weekly result should include match profiles")
+	fixture_view.refresh()
+	_check(fixture_view.summary_label.text.contains("1 oynandı"), "FixtureView should refresh after a played week")
 
 	scene.queue_free()
 	if failures.is_empty():

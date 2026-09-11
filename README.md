@@ -17,6 +17,7 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - Çalışan Kadro ekranı, 4-4-2 ilk 11 ve yedek oyuncu değişimi
 - Çalışan Taktikler ekranı: diziliş, zihniyet, markaj ve 0-100 taktik yoğunlukları
 - Yönetilen ilk 11 ve taktik state'inin deterministik maç profili/xG modeline etkisi
+- Çalışan Fikstür ve Lig Tablosu ekranları; haftalık simülasyonla yenilenir
 - Araştırma, veri politikası ve geliştirme yol haritası
 
 Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri ve oyuncu attribute'ları yalnızca maç motoru ile menajerlik ekranlarını geliştirmek için hazırlanmış sentetik prototip varsayımlarıdır.
@@ -38,6 +39,7 @@ python tools/test_data_pack.py
 godot --headless --path . --script res://tests/squad_state_test.gd
 godot --headless --path . --script res://tests/tactics_state_test.gd
 godot --headless --path . --script res://tests/match_engine_test.gd
+godot --headless --path . --script res://tests/league_views_test.gd
 godot --headless --path . --script res://tests/main_scene_smoke_test.gd
 ```
 
