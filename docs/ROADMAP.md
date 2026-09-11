@@ -50,12 +50,13 @@
 
 - Yönetilen takımın seçili ilk 11 attribute ortalamasının maç profiline dahil edilmesi (ilk prototip)
 - Taktik state değerlerinin deterministik hücum, savunma ve kontrol profillerine bağlanması (ilk prototip)
+- Deterministik temel maç olayları ve maç istatistikleri ilk rapor katmanı
 - Oyuncu özelliklerinin tüm lig takımlarına ve maç olaylarına genişletilmesi
 - Taktik eşleşmeleri ve pozisyon/rol uygunluğu
 - Yorgunluk ve fikstür yoğunluğu
 - Oyuncu değişiklikleri
 - Kart ve sakatlık olayları
-- Maç özeti ve temel istatistik ekranı
+- Daha geniş maç özeti ve temel istatistik ekranı; ilk sentetik rapor katmanı tamamlandı
 - Tekrar üretilebilir test senaryoları
 
 ## Faz 4: Transfer ve kulüp yönetimi

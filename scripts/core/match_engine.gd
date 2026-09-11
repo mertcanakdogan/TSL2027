@@ -52,6 +52,42 @@ func simulate(
 		35.0,
 		65.0
 	)
+	var home_shots: int = clampi(int(round(home_xg * 4.0 + rng.randf_range(3.0, 8.0))), 1, 25)
+	var away_shots: int = clampi(int(round(away_xg * 4.0 + rng.randf_range(3.0, 8.0))), 1, 25)
+	var home_shots_on_target: int = clampi(int(round(home_xg * 1.8 + rng.randf_range(0.0, 2.0))), 0, home_shots)
+	var away_shots_on_target: int = clampi(int(round(away_xg * 1.8 + rng.randf_range(0.0, 2.0))), 0, away_shots)
+	var home_corners: int = clampi(int(round(home_xg * 2.0 + rng.randf_range(0.0, 4.0))), 0, 12)
+	var away_corners: int = clampi(int(round(away_xg * 2.0 + rng.randf_range(0.0, 4.0))), 0, 12)
+	var home_fouls: int = rng.randi_range(7, 20)
+	var away_fouls: int = rng.randi_range(7, 20)
+	var home_yellow_cards: int = rng.randi_range(0, 5)
+	var away_yellow_cards: int = rng.randi_range(0, 5)
+	var events: Array = _build_events(
+		home,
+		away,
+		home_context,
+		away_context,
+		home_goals,
+		away_goals,
+		home_yellow_cards,
+		away_yellow_cards
+	)
+	var match_stats := {
+		"home_shots": home_shots,
+		"away_shots": away_shots,
+		"home_shots_on_target": home_shots_on_target,
+		"away_shots_on_target": away_shots_on_target,
+		"home_corners": home_corners,
+		"away_corners": away_corners,
+		"home_fouls": home_fouls,
+		"away_fouls": away_fouls,
+		"home_yellow_cards": home_yellow_cards,
+		"away_yellow_cards": away_yellow_cards,
+		"home_possession": home_possession,
+		"away_possession": 100.0 - home_possession,
+		"home_xg": home_xg,
+		"away_xg": away_xg
+	}
 
 	return {
 		"home_goals": home_goals,
@@ -66,8 +102,68 @@ func simulate(
 		"away_defense_strength": away_defense_strength,
 		"home_control_strength": home_control_strength,
 		"away_control_strength": away_control_strength,
+		"events": events,
+		"match_stats": match_stats,
 		"seed": seed_value
 	}
+
+func _build_events(
+	home: Dictionary,
+	away: Dictionary,
+	home_context: Dictionary,
+	away_context: Dictionary,
+	home_goals: int,
+	away_goals: int,
+	home_yellow_cards: int,
+	away_yellow_cards: int
+) -> Array:
+	var events: Array = []
+	for index in range(home_goals):
+		events.append({
+			"minute": rng.randi_range(1, 90),
+			"type": "goal",
+			"team_id": String(home.get("id", "home")),
+			"team_name": String(home.get("name", home.get("id", "Ev sahibi"))),
+			"actor": _event_actor(home_context, index, String(home.get("name", "Ev sahibi")))
+		})
+	for index in range(away_goals):
+		events.append({
+			"minute": rng.randi_range(1, 90),
+			"type": "goal",
+			"team_id": String(away.get("id", "away")),
+			"team_name": String(away.get("name", away.get("id", "Deplasman"))),
+			"actor": _event_actor(away_context, index, String(away.get("name", "Deplasman")))
+		})
+	for index in range(home_yellow_cards):
+		events.append({
+			"minute": rng.randi_range(1, 90),
+			"type": "yellow_card",
+			"team_id": String(home.get("id", "home")),
+			"team_name": String(home.get("name", home.get("id", "Ev sahibi"))),
+			"actor": _event_actor(home_context, index + home_goals, String(home.get("name", "Ev sahibi")))
+		})
+	for index in range(away_yellow_cards):
+		events.append({
+			"minute": rng.randi_range(1, 90),
+			"type": "yellow_card",
+			"team_id": String(away.get("id", "away")),
+			"team_name": String(away.get("name", away.get("id", "Deplasman"))),
+			"actor": _event_actor(away_context, index + away_goals, String(away.get("name", "Deplasman")))
+		})
+	events.sort_custom(_event_sorter)
+	return events
+
+func _event_actor(context: Dictionary, index: int, fallback: String) -> String:
+	var starting_xi = context.get("starting_xi", [])
+	if typeof(starting_xi) != TYPE_ARRAY or starting_xi.is_empty():
+		return fallback
+	var player: Dictionary = starting_xi[index % starting_xi.size()]
+	return String(player.get("display_name", player.get("id", fallback)))
+
+func _event_sorter(first: Dictionary, second: Dictionary) -> bool:
+	if int(first["minute"]) != int(second["minute"]):
+		return int(first["minute"]) < int(second["minute"])
+	return String(first["type"]) < String(second["type"])
 
 func _build_profile(team: Dictionary, context: Dictionary) -> Dictionary:
 	var base_strength: float = float(team.get("strength", 50))

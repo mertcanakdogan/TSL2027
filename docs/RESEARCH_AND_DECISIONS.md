@@ -239,7 +239,15 @@ tek orchestrator üzerinden atomik güncellenir ve save schema 3'te birlikte
 saklanır. Satış, kiralık transfer, taksit, menajer komisyonu ve çok yıllı
 pazarlık sonraki bir aşamanın kapsamıdır.
 
-## 8. Gerçek sezon kuralları
+## 8. Maç olayları ve istatistikleri
+
+İlk maç raporu katmanı `MatchEngine` içindeki seed'li rastgelelikten gol, sarı
+kart ve temel şut/korner/faul istatistikleri üretir. Aynı seed ve context skor,
+olay listesi ve istatistik sözleşmesini tekrar üretir; xG ile topa sahip olma
+değerleri sentetik ve bounded kalır. Bu katman yayın verisi veya gerçek oyuncu
+performansı iddiası taşımaz.
+
+## 9. Gerçek sezon kuralları
 
 TFF'nin 2026-2027 Süper Lig statüsüne göre:
 

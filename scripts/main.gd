@@ -441,9 +441,38 @@ func _on_play_week_pressed() -> void:
 				String(away.get("name", "?"))
 			]
 		)
+		if String(result["home_id"]) == managed_team_id or String(result["away_id"]) == managed_team_id:
+			var stats: Dictionary = result.get("match_stats", {})
+			lines.append(
+				"Yönetilen maç: xG %.2f-%.2f | Şut %d-%d | İsabetli %d-%d | Topa sahip olma %d-%d | %d olay" % [
+					float(stats.get("home_xg", result.get("home_xg", 0.0))),
+					float(stats.get("away_xg", result.get("away_xg", 0.0))),
+					int(stats.get("home_shots", 0)),
+					int(stats.get("away_shots", 0)),
+					int(stats.get("home_shots_on_target", 0)),
+					int(stats.get("away_shots_on_target", 0)),
+					int(round(float(stats.get("home_possession", result.get("home_possession", 50.0))))),
+					int(round(float(stats.get("away_possession", result.get("away_possession", 50.0))))),
+					result.get("events", []).size()
+				]
+			)
+			var event_summary := _format_match_events(result.get("events", []))
+			if not event_summary.is_empty():
+				lines.append("Olaylar: %s" % event_summary)
 
 	result_label.text = "\n".join(lines)
 	_refresh_ui()
+
+func _format_match_events(events: Array) -> String:
+	var parts: Array = []
+	for event in events:
+		var event_type := "Gol" if String(event.get("type", "")) == "goal" else "Sarı kart"
+		parts.append("%d' %s (%s)" % [
+			int(event.get("minute", 0)),
+			event_type,
+			String(event.get("actor", event.get("team_name", "Takım")))
+		])
+	return ", ".join(parts)
 
 func _sync_managed_context() -> void:
 	if league == null or squad_state == null or tactics_state == null:
