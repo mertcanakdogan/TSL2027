@@ -143,6 +143,7 @@ func _build_default_team_contexts() -> Dictionary:
 			continue
 		contexts[team_id] = {
 			"starting_xi": default_squad.get_starting_xi(),
+			"bench": default_squad.get_bench(),
 			"tactics": default_tactics.get_snapshot()
 		}
 	return contexts
@@ -502,10 +503,19 @@ func _on_play_week_pressed() -> void:
 func _format_match_events(events: Array) -> String:
 	var parts: Array = []
 	for event in events:
-		var event_type := "Gol" if String(event.get("type", "")) == "goal" else "Sarı kart"
+		var event_type: String = String(event.get("type", ""))
+		if event_type == "substitution":
+			parts.append("%d' Oyuncu değişikliği: %s → %s (%s)" % [
+				int(event.get("minute", 0)),
+				String(event.get("player_out", "Oyuncu")),
+				String(event.get("player_in", "Oyuncu")),
+				String(event.get("team_name", "Takım"))
+			])
+			continue
+		var label: String = "Gol" if event_type == "goal" else "Sarı kart"
 		parts.append("%d' %s (%s)" % [
 			int(event.get("minute", 0)),
-			event_type,
+			label,
 			String(event.get("actor", event.get("team_name", "Takım")))
 		])
 	return ", ".join(parts)
@@ -515,6 +525,7 @@ func _sync_managed_context() -> void:
 		return
 	league.set_team_context(managed_team_id, {
 		"starting_xi": squad_state.get_starting_xi(),
+		"bench": squad_state.get_bench(),
 		"tactics": tactics_state.get_snapshot()
 	})
 

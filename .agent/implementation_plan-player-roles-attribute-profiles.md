@@ -18,8 +18,8 @@ available to every league team's default XI.
 
 ## Out of scope
 
-- Real-player ratings, learned weights, fatigue, substitutions, injuries, or
-  event-window simulation.
+- Real-player ratings, learned weights, injuries, or event-window simulation;
+  report-level substitutions do not alter this role/profile boundary.
 
 ## Acceptance evidence
 

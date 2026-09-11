@@ -54,7 +54,7 @@
 - Oyuncu özelliklerinin tüm lig takımlarının varsayılan ilk 11 profillerine genişletilmesi
 - Taktik eşleşmeleri ve pozisyon/rol uygunluğu
 - Temel kondisyon/yorgunluk ve fikstür haftası etkisi
-- Oyuncu değişiklikleri
+- Sentetik rapor düzeyinde oyuncu değişiklikleri (kalıcı in-match lineup mutation henüz yok)
 - Kart ve sakatlık olayları
 - Daha geniş maç özeti ve temel istatistik ekranı; ilk sentetik rapor katmanı tamamlandı
 - Tekrar üretilebilir test senaryoları

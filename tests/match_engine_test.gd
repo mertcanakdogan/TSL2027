@@ -44,6 +44,8 @@ func _run() -> void:
 	_check(home_goal_events == int(first["home_goals"]), "home goal events should match home score")
 	_check(away_goal_events == int(first["away_goals"]), "away goal events should match away score")
 	var stats: Dictionary = first["match_stats"]
+	_check(stats.has("home_substitutions") and stats.has("away_substitutions"), "match stats should expose substitution counts")
+	_check(int(stats["home_substitutions"]) == 0 and int(stats["away_substitutions"]) == 0, "missing benches should preserve zero substitution fallback")
 	_check(int(stats["home_shots_on_target"]) <= int(stats["home_shots"]), "home shots on target should not exceed shots")
 	_check(int(stats["away_shots_on_target"]) <= int(stats["away_shots"]), "away shots on target should not exceed shots")
 	_check(int(stats["home_yellow_cards"]) >= 0 and int(stats["home_yellow_cards"]) <= 7, "home cards should be bounded")
@@ -82,6 +84,31 @@ func _run() -> void:
 	_check(float(fresh_profile["home_attack_strength"]) > float(fatigued_profile["home_attack_strength"]), "low condition should reduce attack profile")
 	_check(float(fresh_profile["home_defense_strength"]) > float(fatigued_profile["home_defense_strength"]), "low condition should reduce defense profile")
 
+	var bench_context := {
+		"starting_xi": _build_xi(60),
+		"bench": _build_bench(70),
+		"tactics": _balanced_tactics()
+	}
+	var substitution_result: Dictionary = engine.simulate(home, away, 5151, bench_context, bench_context)
+	var substitution_replay: Dictionary = engine.simulate(home, away, 5151, bench_context, bench_context)
+	_check(substitution_result == substitution_replay, "substitution events should replay identically")
+	_check(int(substitution_result["match_stats"]["home_substitutions"]) == 3, "home should receive three synthetic substitutions")
+	_check(int(substitution_result["match_stats"]["away_substitutions"]) == 3, "away should receive three synthetic substitutions")
+	var substitution_events: int = 0
+	for event in substitution_result["events"]:
+		if String(event.get("type", "")) != "substitution":
+			continue
+		substitution_events += 1
+		_check(int(event.get("minute", 0)) >= 46 and int(event.get("minute", 0)) <= 90, "substitution minute should be in second-half bounds")
+		_check(not String(event.get("player_out", "")).is_empty(), "substitution should name outgoing player")
+		_check(not String(event.get("player_in", "")).is_empty(), "substitution should name incoming player")
+		_check(String(event.get("player_out", "")) != String(event.get("player_in", "")), "substitution players should differ")
+	_check(substitution_events == 6, "both teams should contribute three substitution events")
+	var malformed_bench_context: Dictionary = bench_context.duplicate(true)
+	malformed_bench_context["bench"] = ["not a player"]
+	var malformed_bench_result: Dictionary = engine.simulate(home, away, 5152, malformed_bench_context, {})
+	_check(int(malformed_bench_result["match_stats"]["home_substitutions"]) == 0, "malformed bench data should disable substitutions safely")
+
 	var league = LeagueStateScript.new()
 	league.initialize([home, away], 2026)
 	_check(league.set_team_context("home", attacking_context), "known team context should be accepted")
@@ -114,6 +141,17 @@ func _build_xi_with_condition(condition: int) -> Array:
 	var players: Array = _build_xi(60)
 	for player in players:
 		player["condition"] = condition
+	return players
+
+func _build_bench(value: int) -> Array:
+	var players: Array = []
+	for index in range(7):
+		players.append({
+			"id": "bench_%d_%d" % [value, index],
+			"display_name": "Bench Player %d" % index,
+			"position": "MF",
+			"attributes": {"passing": value, "decisions": value}
+		})
 	return players
 
 func _balanced_tactics() -> Dictionary:

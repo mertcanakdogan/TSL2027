@@ -50,7 +50,8 @@ SquadState first XI + TacticsState snapshot
 
 ## Explicit non-goals
 
-- No event-by-event simulation, fatigue, injuries, cards, or substitutions yet.
+- No permanent in-match lineup mutation, injuries, or eligibility simulation yet;
+  report-level card and substitution events are separate slices.
 - No real player data or provider calls.
 - No position-compatibility optimizer; the existing baseline lineup remains the
   source of selected XI until formation legality is implemented.

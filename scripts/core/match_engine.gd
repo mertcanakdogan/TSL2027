@@ -7,6 +7,7 @@ const HOME_ADVANTAGE := 3.0
 const HOME_CONTROL_ADVANTAGE := 1.5
 const LINEUP_STRENGTH_BLEND := 0.35
 const CONDITION_PENALTY_PER_MISSING_POINT := 0.25
+const SYNTHETIC_SUBSTITUTIONS_PER_TEAM := 3
 const MENTALITY_MODIFIERS := {
 	"cautious": {"attack": -3.0, "defense": 2.0, "control": -1.0},
 	"balanced": {"attack": 0.0, "defense": 0.0, "control": 0.0},
@@ -73,8 +74,12 @@ func simulate(
 		home_goals,
 		away_goals,
 		home_yellow_cards,
-		away_yellow_cards
+		away_yellow_cards,
+		_substitution_count(home_context),
+		_substitution_count(away_context)
 	)
+	var home_substitutions: int = _substitution_count(home_context)
+	var away_substitutions: int = _substitution_count(away_context)
 	var match_stats := {
 		"home_shots": home_shots,
 		"away_shots": away_shots,
@@ -86,6 +91,8 @@ func simulate(
 		"away_fouls": away_fouls,
 		"home_yellow_cards": home_yellow_cards,
 		"away_yellow_cards": away_yellow_cards,
+		"home_substitutions": home_substitutions,
+		"away_substitutions": away_substitutions,
 		"home_possession": home_possession,
 		"away_possession": 100.0 - home_possession,
 		"home_xg": home_xg,
@@ -118,7 +125,9 @@ func _build_events(
 	home_goals: int,
 	away_goals: int,
 	home_yellow_cards: int,
-	away_yellow_cards: int
+	away_yellow_cards: int,
+	home_substitutions: int,
+	away_substitutions: int
 ) -> Array:
 	var events: Array = []
 	for index in range(home_goals):
@@ -153,15 +162,47 @@ func _build_events(
 			"team_name": String(away.get("name", away.get("id", "Deplasman"))),
 			"actor": _event_actor(away_context, index + away_goals, String(away.get("name", "Deplasman")))
 		})
+	for index in range(home_substitutions):
+		events.append(_build_substitution_event(home, home_context, index))
+	for index in range(away_substitutions):
+		events.append(_build_substitution_event(away, away_context, index))
 	events.sort_custom(_event_sorter)
 	return events
 
+func _build_substitution_event(team: Dictionary, context: Dictionary, index: int) -> Dictionary:
+	var team_name: String = String(team.get("name", team.get("id", "Takım")))
+	var outgoing: String = _event_actor(context, index, team_name)
+	var incoming: String = _context_player_name(context, "bench", index, team_name)
+	return {
+		"minute": rng.randi_range(46, 90),
+		"type": "substitution",
+		"team_id": String(team.get("id", "team")),
+		"team_name": team_name,
+		"actor": incoming,
+		"player_out": outgoing,
+		"player_in": incoming
+	}
+
 func _event_actor(context: Dictionary, index: int, fallback: String) -> String:
-	var starting_xi = context.get("starting_xi", [])
-	if typeof(starting_xi) != TYPE_ARRAY or starting_xi.is_empty():
+	return _context_player_name(context, "starting_xi", index, fallback)
+
+func _context_player_name(context: Dictionary, key: String, index: int, fallback: String) -> String:
+	var players = context.get(key, [])
+	if typeof(players) != TYPE_ARRAY or players.is_empty():
 		return fallback
-	var player: Dictionary = starting_xi[index % starting_xi.size()]
+	var player = players[index % players.size()]
+	if typeof(player) != TYPE_DICTIONARY:
+		return fallback
 	return String(player.get("display_name", player.get("id", fallback)))
+
+func _substitution_count(context: Dictionary) -> int:
+	var bench = context.get("bench", [])
+	if typeof(bench) != TYPE_ARRAY:
+		return 0
+	for player in bench:
+		if typeof(player) != TYPE_DICTIONARY:
+			return 0
+	return min(SYNTHETIC_SUBSTITUTIONS_PER_TEAM, bench.size())
 
 func _event_sorter(first: Dictionary, second: Dictionary) -> bool:
 	if int(first["minute"]) != int(second["minute"]):
