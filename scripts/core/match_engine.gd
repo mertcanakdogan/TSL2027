@@ -1,6 +1,8 @@
 class_name MatchEngine
 extends RefCounted
 
+const PlayerRoleRulesScript = preload("res://scripts/core/player_role_rules.gd")
+
 const HOME_ADVANTAGE := 3.0
 const HOME_CONTROL_ADVANTAGE := 1.5
 const LINEUP_STRENGTH_BLEND := 0.35
@@ -167,13 +169,18 @@ func _event_sorter(first: Dictionary, second: Dictionary) -> bool:
 
 func _build_profile(team: Dictionary, context: Dictionary) -> Dictionary:
 	var base_strength: float = float(team.get("strength", 50))
-	var lineup_strength: float = _lineup_strength(context.get("starting_xi", []))
+	var lineup_ratings: Dictionary = _lineup_profile_ratings(context.get("starting_xi", []))
+	var lineup_strength: float = float(lineup_ratings.get("overall", -1.0))
 	if lineup_strength >= 0.0:
 		base_strength = base_strength + ((lineup_strength - base_strength) * LINEUP_STRENGTH_BLEND)
 
 	var attack_modifier: float = 0.0
 	var defense_modifier: float = 0.0
 	var control_modifier: float = 0.0
+	if lineup_strength >= 0.0:
+		attack_modifier += (float(lineup_ratings["attack"]) - lineup_strength) * 0.20
+		defense_modifier += (float(lineup_ratings["defense"]) - lineup_strength) * 0.20
+		control_modifier += (float(lineup_ratings["control"]) - lineup_strength) * 0.20
 	var tactics = context.get("tactics", {})
 	if typeof(tactics) == TYPE_DICTIONARY:
 		var mentality: String = String(tactics.get("mentality", "balanced"))
@@ -205,31 +212,25 @@ func _build_profile(team: Dictionary, context: Dictionary) -> Dictionary:
 		"control_strength": clampf(base_strength + control_modifier, 1.0, 99.0)
 	}
 
-func _lineup_strength(players) -> float:
+func _lineup_profile_ratings(players) -> Dictionary:
 	if typeof(players) != TYPE_ARRAY or players.is_empty():
-		return -1.0
-	var player_ratings: Array = []
+		return {"overall": -1.0, "attack": -1.0, "defense": -1.0, "control": -1.0}
+	var totals := {"overall": 0.0, "attack": 0.0, "defense": 0.0, "control": 0.0}
+	var player_count: int = 0
 	for player in players:
 		if typeof(player) != TYPE_DICTIONARY:
 			continue
-		var attributes = player.get("attributes", {})
-		if typeof(attributes) != TYPE_DICTIONARY or attributes.is_empty():
+		var ratings: Dictionary = PlayerRoleRulesScript.get_profile_ratings(player)
+		if float(ratings.get("overall", -1.0)) < 0.0:
 			continue
-		var total: float = 0.0
-		var count: int = 0
-		for attribute in attributes:
-			var value = attributes[attribute]
-			if typeof(value) == TYPE_INT or typeof(value) == TYPE_FLOAT:
-				total += float(value)
-				count += 1
-		if count > 0:
-			player_ratings.append(total / count)
-	if player_ratings.is_empty():
-		return -1.0
-	var sum_rating: float = 0.0
-	for rating in player_ratings:
-		sum_rating += float(rating)
-	return sum_rating / player_ratings.size()
+		for profile_name in totals:
+			totals[profile_name] += float(ratings[profile_name])
+		player_count += 1
+	if player_count == 0:
+		return {"overall": -1.0, "attack": -1.0, "defense": -1.0, "control": -1.0}
+	for profile_name in totals:
+		totals[profile_name] /= player_count
+	return totals
 
 func _parameter(tactics: Dictionary, name: String) -> float:
 	return clampf(float(tactics.get(name, 50)), 0.0, 100.0)

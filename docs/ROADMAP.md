@@ -41,7 +41,7 @@
 
 - Takım seçme
 - Takım seçimini tüm lig takımlarına açma
-- Pozisyon uygunluğu ve formasyon doğrulama dilimi tamamlandı; alt roller sonraki veri sözleşmesine bağlı
+- Pozisyon uygunluğu, formasyon doğrulama ve üç alternatif rol skoru tamamlandı
 - Antrenman planı
 - Moral, form ve kondisyon
 - Sakatlık ve cezalar
@@ -51,7 +51,7 @@
 - Yönetilen takımın seçili ilk 11 attribute ortalamasının maç profiline dahil edilmesi (ilk prototip)
 - Taktik state değerlerinin deterministik hücum, savunma ve kontrol profillerine bağlanması (ilk prototip)
 - Deterministik temel maç olayları ve maç istatistikleri ilk rapor katmanı
-- Oyuncu özelliklerinin tüm lig takımlarına ve maç olaylarına genişletilmesi
+- Oyuncu özelliklerinin tüm lig takımlarının varsayılan ilk 11 profillerine genişletilmesi
 - Taktik eşleşmeleri ve pozisyon/rol uygunluğu
 - Yorgunluk ve fikstür yoğunluğu
 - Oyuncu değişiklikleri

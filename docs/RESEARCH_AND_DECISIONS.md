@@ -239,7 +239,22 @@ tek orchestrator üzerinden atomik güncellenir ve save schema 3'te birlikte
 saklanır. Satış, kiralık transfer, taksit, menajer komisyonu ve çok yıllı
 pazarlık sonraki bir aşamanın kapsamıdır.
 
-## 8. Maç olayları ve istatistikleri
+## 8. Oyuncu rolleri ve attribute profilleri
+
+Her pozisyon için üç alternatif rol, pozisyona ait attribute kümelerinin basit
+aritmetik ortalamasıyla skorlanır. `PlayerRoleRules`, `Sweeper Keeper`,
+`Ball Playing Defender`, `Playmaker` ve `Poacher` gibi rolleri aynı mekanik
+üzerinden üretir; eşitlikler alfabetik olarak kırılır. Bu skorlar resmi rating
+veya gerçek oyuncu değerlendirmesi değildir.
+
+Aynı kural seti oyuncu attribute'larını `overall`, `attack`, `defense` ve
+`control` profillerine dönüştürür. `MatchEngine`, yönetilen takımın yanında
+ligdeki diğer takımlar için de varsayılan ilk 11 bağlamını kullanır. Profil
+grupları eşit ağırlıklıdır; eksik bir role-özel attribute mevcutsa o oyuncunun
+genel ortalaması fallback olur. Böylece prototipte kullanılan her attribute
+maç profili hesaplamasının izlenebilir bir parçası olarak kalır.
+
+## 9. Maç olayları ve istatistikleri
 
 İlk maç raporu katmanı `MatchEngine` içindeki seed'li rastgelelikten gol, sarı
 kart ve temel şut/korner/faul istatistikleri üretir. Aynı seed ve context skor,
@@ -247,7 +262,7 @@ olay listesi ve istatistik sözleşmesini tekrar üretir; xG ile topa sahip olma
 değerleri sentetik ve bounded kalır. Bu katman yayın verisi veya gerçek oyuncu
 performansı iddiası taşımaz.
 
-## 9. Gerçek sezon kuralları
+## 10. Gerçek sezon kuralları
 
 TFF'nin 2026-2027 Süper Lig statüsüne göre:
 

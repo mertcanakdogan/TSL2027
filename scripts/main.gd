@@ -108,7 +108,7 @@ func _start_new_career(selected_team_id: String) -> bool:
 		_set_data_error_state(transfer_market_state.error_message)
 		return false
 	league = LeagueStateScript.new()
-	league.initialize(data_pack.teams, 2026)
+	league.initialize(data_pack.teams, 2026, _build_default_team_contexts())
 	_sync_managed_context()
 	data_status_label.text = "%d takım • %d sentetik oyuncu • yönetilen: %s • şema %s" % [
 		data_pack.teams.size(),
@@ -131,6 +131,21 @@ func _find_team(team_id: String) -> Dictionary:
 		if String(team.get("id", "")) == team_id:
 			return team
 	return {}
+
+func _build_default_team_contexts() -> Dictionary:
+	var contexts: Dictionary = {}
+	var default_tactics = TacticsStateScript.new()
+	default_tactics.initialize()
+	for team in data_pack.teams:
+		var team_id: String = String(team.get("id", ""))
+		var default_squad = SquadStateScript.new()
+		if not default_squad.initialize(team_id, data_pack.get_team_squad(team_id)):
+			continue
+		contexts[team_id] = {
+			"starting_xi": default_squad.get_starting_xi(),
+			"tactics": default_tactics.get_snapshot()
+		}
+	return contexts
 
 func _build_ui() -> void:
 	var background := ColorRect.new()
