@@ -24,10 +24,11 @@ continuous control on a documented 0–100 scale.
 
 ## Boundary
 
-The current screen records tactical intent; it does not claim that the existing
-team-strength/xG match engine applies every control. Formation selection also
-does not silently rewrite the first XI. Formation legality, role suitability,
-and deterministic match effects are later slices with their own tests.
+The current screen records tactical intent and the managed team's first context
+passes the snapshot into the deterministic profile/xG engine. Formation
+selection still does not silently rewrite the first XI. Formation legality,
+role suitability, and event-level tactical effects remain later slices with
+their own tests.
 
 ## References
 
