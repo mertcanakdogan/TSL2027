@@ -1,6 +1,8 @@
 class_name SquadView
 extends VBoxContainer
 
+const PlayerRoleRulesScript = preload("res://scripts/core/player_role_rules.gd")
+
 const COLOR_PANEL := Color(0.090196, 0.105882, 0.137255, 1.0)
 const COLOR_PANEL_ALT := Color(0.121569, 0.137255, 0.172549, 1.0)
 const COLOR_ACCENT := Color(0.87451, 0.168627, 0.164706, 1.0)
@@ -112,7 +114,7 @@ func _add_group_player(parent: VBoxContainer, player: Dictionary) -> void:
 		String(player.get("position", "?")),
 		str(player.get("age", "?"))
 	]
-	parent.add_child(_make_label(text, 13, COLOR_TEXT))
+	parent.add_child(_make_label("%s  |  %s" % [text, _role_text(player)], 13, COLOR_TEXT))
 
 func _add_roster_player(parent: VBoxContainer, player: Dictionary) -> void:
 	var player_id: String = String(player.get("id", ""))
@@ -127,7 +129,7 @@ func _add_roster_player(parent: VBoxContainer, player: Dictionary) -> void:
 			String(player.get("display_name", "Oyuncu")),
 			String(player.get("position", "?")),
 			str(player.get("age", "?")),
-			group_text
+			"%s  %s" % [group_text, _role_text(player)]
 		],
 		13,
 		COLOR_TEXT
@@ -140,6 +142,13 @@ func _add_roster_player(parent: VBoxContainer, player: Dictionary) -> void:
 	select_button.custom_minimum_size = Vector2(76, 28)
 	select_button.pressed.connect(_on_player_selected.bind(player_id))
 	row.add_child(select_button)
+
+func _role_text(player: Dictionary) -> String:
+	var best_role: Dictionary = PlayerRoleRulesScript.get_best_role(player)
+	var role_name: String = String(best_role.get("role", ""))
+	if role_name.is_empty():
+		return "Rol uygunluğu yok"
+	return "%s %.0f" % [role_name, float(best_role.get("score", 0.0))]
 
 func _on_player_selected(player_id: String) -> void:
 	if selected_player_id.is_empty():

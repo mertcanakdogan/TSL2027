@@ -92,6 +92,7 @@ func _run() -> void:
 	_check(dashboard_nodes[0].visible, "dashboard action should restore dashboard nodes")
 
 	var league = scene.get("league")
+	_check(league.team_contexts.size() == 18, "main scene should register default player contexts for every league team")
 	var registered_context: Dictionary = league.team_contexts.get("kocaelispor", {})
 	_check(registered_context.has("starting_xi"), "main scene should register managed starting XI context")
 	_check(registered_context["starting_xi"].size() == 11, "managed context should contain 11 players")

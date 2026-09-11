@@ -23,6 +23,7 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - Formasyon pozisyon uygunluğu, taslak taktik seçimi ve açık ilk 11 uygulaması
 - Sentetik transfer pazarı, kulüp bütçesi, haftalık maaş tahsilatı ve sözleşme save/load akışı
 - Deterministik maç olayları ve şut/isabetli şut/korner/faul/kart/xG istatistikleri
+- Pozisyona göre üç alternatif rol uygunluğu ve oyuncu profillerinin maç profiline etkisi
 - Araştırma, veri politikası ve geliştirme yol haritası
 
 Bu sürüm gerçek oyuncu verisi, kulüp logosu veya oyuncu fotoğrafı içermez. Takım güçleri ve oyuncu attribute'ları yalnızca maç motoru ile menajerlik ekranlarını geliştirmek için hazırlanmış sentetik prototip varsayımlarıdır.
@@ -58,6 +59,7 @@ godot --headless --path . --script res://tests/match_engine_test.gd
 godot --headless --path . --script res://tests/league_views_test.gd
 godot --headless --path . --script res://tests/economy_state_test.gd
 godot --headless --path . --script res://tests/transfer_market_test.gd
+godot --headless --path . --script res://tests/player_role_rules_test.gd
 godot --headless --path . --script res://tests/save_game_test.gd
 godot --headless --path . --script res://tests/main_scene_smoke_test.gd
 ```

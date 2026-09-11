@@ -15,7 +15,7 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
   bağlanıyor; sentetik prototip formülü test ediliyor.
 - [x] 18 takımdan seçim yapma ve açık “Yeni Kariyeri Başlat” akışı.
 - [x] Beş formasyon için GK/DF/MF/FW pozisyon uygunluğu ve açık ilk 11 uygulaması.
-- [ ] Alt oyuncu rolü uygunluğu ve tüm lig takımlarında oyuncu attribute etkisi.
+- [x] Alt oyuncu rolü uygunluğu ve tüm lig takımlarında oyuncu attribute etkisi.
 - [ ] Taktik etkileri, maç olayları ve maç istatistikleri için deterministik
   senaryolar.
 - [x] Sürümlü save/load, aktif formasyonun saklanması ve uyumsuz kayıt reddi.
