@@ -47,6 +47,16 @@ modda başlatıp temiz biçimde kapanabildiğini doğrular. `build/` ve geçici 
 Git'e eklenmez. Temiz bir bilgisayar, imza ve installer testi bu yerel kontrolden
 ayrı bir yayın kapısıdır.
 
+Portable Windows paketini oluşturmak ve temiz bir klasörden doğrulamak için:
+
+```powershell
+.\tools\package_windows_release.ps1
+.\tools\verify_windows_release.ps1
+```
+
+Paket `dist/TSL2027-windows-x64.zip` altında oluşur ve executable ile birlikte
+README, MIT lisansı ve veri politikasını taşır.
+
 Veri paketi kontrolü için:
 
 ```powershell
