@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Functional Kadro screen with a deterministic 4-4-2 starting XI and bench swap flow.
+- Headless Godot tests for squad state and main-scene screen switching.
 - Deterministic synthetic player data for all 18 prototype teams.
 - Versioned competition rules data pack for the 2026-2027 prototype season.
 - Python generator, validator, and nine data-contract tests.
