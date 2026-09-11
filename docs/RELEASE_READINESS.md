@@ -20,6 +20,8 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
   senaryolar.
 - [x] Sürümlü save/load, aktif formasyonun saklanması, uyumsuz kayıt reddi ve
   temporary-write/backup recovery.
+- [x] Haftalık managed-player kondisyon düşüşü, bench recovery, maç profili
+  etkisi ve schema 3 -> 4 migration.
 - [x] Fikstür ve lig tablosu ekranlarının placeholder olmaktan çıkarılması.
 - [x] Transfer ekranının sentetik ekonomi, maaş bütçesi, sözleşme ve imza state'iyle gerçek hale gelmesi.
 - [x] Deterministik temel maç olayları, skorla tutarlı gol olayları ve maç istatistikleri.

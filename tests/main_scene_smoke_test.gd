@@ -100,6 +100,7 @@ func _run() -> void:
 	var initial_week: int = int(league.current_week)
 	scene.call("_on_play_week_pressed")
 	_check(int(league.current_week) == initial_week + 1, "weekly simulation should still advance one week")
+	_check(int(squad_view.squad_state.get_starting_xi()[0].get("condition", 100)) == 92, "weekly simulation should apply deterministic managed-player fatigue")
 	_check(league.fixtures[0]["result"].has("home_attack_strength"), "weekly result should include match profiles")
 	_check(String(league.team_contexts["kocaelispor"]["tactics"]["formation"]) == "4-3-3", "play action should sync current tactics")
 	_check(result_label.text.contains("Yönetilen maç:"), "match center should show managed match statistics")

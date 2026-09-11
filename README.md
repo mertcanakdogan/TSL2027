@@ -59,6 +59,8 @@ README, MIT lisansı ve veri politikasını taşır.
 
 Kayıt sistemi `user://tsl2027_save.json` için geçici yazma ve `.bak` yedeği
 kullanır; bozuk ana JSON bulunduğunda geçerli yedeğe dönmeyi dener.
+İlk 11 oyuncuları her oynanan haftadan sonra kondisyon kaybeder; yedek ve
+kullanılmayan oyuncuların kondisyonu deterministik olarak toparlanır.
 
 Veri paketi kontrolü için:
 

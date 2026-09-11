@@ -23,6 +23,13 @@ func _run_tests() -> void:
 	_check(state.get_bench().size() == 7, "bench should contain 7 players")
 	_check(_position_counts(state.get_starting_xi()) == {"GK": 1, "DF": 4, "MF": 4, "FW": 2}, "default XI should be 4-4-2")
 	_check(state.get_active_formation() == "4-4-2", "default active formation should be 4-4-2")
+	var initial_starter_id: String = String(state.get_starting_xi()[0]["id"])
+	var initial_bench_id: String = String(state.get_bench()[0]["id"])
+	_check(state.get_player_condition(initial_starter_id) == 100, "new starter should begin fully fit")
+	_check(state.get_starting_xi()[0]["condition"] == 100, "starting XI records should expose condition")
+	state.apply_match_fatigue()
+	_check(state.get_player_condition(initial_starter_id) == 92, "starting player should lose deterministic match condition")
+	_check(state.get_player_condition(initial_bench_id) == 100, "bench player should recover up to the condition cap")
 	_check(_all_roster_players_are_grouped(state, roster), "every roster player should belong to one group")
 	for formation in ["4-4-2", "4-3-3", "4-2-3-1", "3-5-2", "5-3-2"]:
 		var requirements: Dictionary = state.get_formation_requirements(formation)

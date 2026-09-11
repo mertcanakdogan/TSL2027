@@ -453,6 +453,7 @@ func _on_play_week_pressed() -> void:
 		return
 	if not economy_state.advance_week(week_to_play):
 		result_label.text = "Hafta oynandı ancak ekonomi tahsil edilemedi: %s" % economy_state.error_message
+	squad_state.apply_match_fatigue()
 	transfer_market_state.set_current_week(league.current_week)
 
 	var lines: Array = ["Hafta %d tamamlandı." % week_to_play]

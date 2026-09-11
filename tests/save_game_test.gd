@@ -96,6 +96,15 @@ func _init() -> void:
 	_check(not saver.load_from_file(SAVE_PATH, league, squad, tactics, economy, transfer_market, data_pack.schema_version, "kocaelispor"), "mismatched squad and tactics formation should fail")
 	_check(squad.get_active_formation() == "4-3-3" and tactics.formation == "4-3-3" and tactics.mentality == tactics_before_bad_load, "mismatched load should not mutate current state")
 
+	var legacy_payload: Dictionary = saved_payload.duplicate(true)
+	legacy_payload["save_schema_version"] = SaveGameScript.LEGACY_SAVE_SCHEMA_VERSION
+	legacy_payload["squad_state"].erase("condition")
+	var legacy_file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	legacy_file.store_string(JSON.stringify(legacy_payload))
+	legacy_file.close()
+	_check(saver.load_from_file(SAVE_PATH, league, squad, tactics, economy, transfer_market, data_pack.schema_version, "kocaelispor"), "schema 3 save should migrate to the current schema")
+	_check(squad.get_player_condition(first_player_id) == 100, "migrated schema 3 save should initialize missing condition")
+
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH + SaveGameScript.BACKUP_SUFFIX))
 	if failures.is_empty():

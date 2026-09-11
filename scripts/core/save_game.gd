@@ -2,7 +2,8 @@ class_name SaveGame
 extends RefCounted
 
 const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
-const SAVE_SCHEMA_VERSION := 3
+const SAVE_SCHEMA_VERSION := 4
+const LEGACY_SAVE_SCHEMA_VERSION := 3
 const TEMP_SUFFIX := ".tmp"
 const BACKUP_SUFFIX := ".bak"
 
@@ -44,6 +45,7 @@ func load_from_file(
 	var payload: Dictionary = _read_payload_with_backup(path)
 	if payload.is_empty():
 		return false
+	payload = _migrate_payload(payload)
 	if not _validate_payload(payload, league, squad, tactics, economy, transfer, expected_data_schema_version, expected_team_id):
 		return false
 
@@ -77,6 +79,23 @@ func load_from_file(
 		return _fail(transfer.error_message)
 	last_payload = payload.duplicate(true)
 	return true
+
+func _migrate_payload(payload: Dictionary) -> Dictionary:
+	if int(payload.get("save_schema_version", -1)) != LEGACY_SAVE_SCHEMA_VERSION:
+		return payload
+	var migrated: Dictionary = payload.duplicate(true)
+	migrated["save_schema_version"] = SAVE_SCHEMA_VERSION
+	var squad_payload = migrated.get("squad_state", {})
+	if typeof(squad_payload) == TYPE_DICTIONARY and not squad_payload.has("condition"):
+		var condition_payload: Dictionary = {}
+		var roster = squad_payload.get("roster", [])
+		if typeof(roster) == TYPE_ARRAY:
+			for player in roster:
+				if typeof(player) == TYPE_DICTIONARY:
+					condition_payload[String(player.get("id", ""))] = 100
+		squad_payload["condition"] = condition_payload
+		migrated["squad_state"] = squad_payload
+	return migrated
 
 func _commit_temporary_save(path: String, temporary_path: String) -> bool:
 	var target_absolute: String = ProjectSettings.globalize_path(path)
