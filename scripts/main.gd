@@ -9,6 +9,7 @@ const TacticsViewScript = preload("res://scripts/ui/tactics_view.gd")
 const FixtureViewScript = preload("res://scripts/ui/fixture_view.gd")
 const StandingsViewScript = preload("res://scripts/ui/standings_view.gd")
 const SaveGameScript = preload("res://scripts/core/save_game.gd")
+const TeamSelectionViewScript = preload("res://scripts/ui/team_selection_view.gd")
 
 const COLOR_BACKGROUND := Color(0.05098, 0.058824, 0.078431, 1.0)
 const COLOR_PANEL := Color(0.090196, 0.105882, 0.137255, 1.0)
@@ -19,7 +20,7 @@ const COLOR_TEXT := Color(0.95, 0.96, 0.98, 1.0)
 const COLOR_MUTED := Color(0.62, 0.66, 0.72, 1.0)
 const COLOR_SUCCESS := Color(0.0, 0.588235, 0.431373, 1.0)
 
-const USER_TEAM_ID := "kocaelispor"
+const DEFAULT_TEAM_ID := "kocaelispor"
 const SAVE_PATH := "user://tsl2027_save.json"
 
 var league
@@ -35,13 +36,17 @@ var save_button: Button
 var load_button: Button
 var data_status_label: Label
 var data_pack
+var managed_team_id: String = DEFAULT_TEAM_ID
+var managed_team_name: String = "Kocaelispor"
 var squad_state
 var squad_view
 var tactics_state
 var tactics_view
 var fixture_view
 var standings_view
+var team_selection_view
 var save_game
+var dashboard_subtitle: Label
 var dashboard_nodes: Array = []
 var content_scroll: ScrollContainer
 
@@ -57,31 +62,49 @@ func _ready() -> void:
 		_set_data_error_state()
 		return
 
-	var team_records: Array = data_pack.teams
-	squad_state = SquadStateScript.new()
-	var squad_loaded: bool = squad_state.initialize(USER_TEAM_ID, data_pack.get_team_squad(USER_TEAM_ID))
-	if not squad_loaded:
-		_set_data_error_state(squad_state.error_message)
-		return
-	tactics_state = TacticsStateScript.new()
-	var tactics_loaded: bool = tactics_state.initialize()
-	if not tactics_loaded:
-		_set_data_error_state(tactics_state.error_message)
-		return
-	league = LeagueStateScript.new()
-	league.initialize(team_records, 2026)
-	_sync_managed_context()
 	save_game = SaveGameScript.new()
-	data_status_label.text = "%d takım • %d sentetik oyuncu • şema %s" % [
+	team_selection_view.setup(data_pack.teams, DEFAULT_TEAM_ID)
+	_start_new_career(DEFAULT_TEAM_ID)
+
+func _start_new_career(selected_team_id: String) -> bool:
+	var selected_team: Dictionary = _find_team(selected_team_id)
+	if selected_team.is_empty():
+		_set_data_error_state("Seçilen takım veri paketinde bulunamadı: %s" % selected_team_id)
+		return false
+	managed_team_id = selected_team_id
+	managed_team_name = String(selected_team.get("name", selected_team_id))
+
+	squad_state = SquadStateScript.new()
+	if not squad_state.initialize(managed_team_id, data_pack.get_team_squad(managed_team_id)):
+		_set_data_error_state(squad_state.error_message)
+		return false
+	tactics_state = TacticsStateScript.new()
+	if not tactics_state.initialize():
+		_set_data_error_state(tactics_state.error_message)
+		return false
+	league = LeagueStateScript.new()
+	league.initialize(data_pack.teams, 2026)
+	_sync_managed_context()
+	data_status_label.text = "%d takım • %d sentetik oyuncu • yönetilen: %s • şema %s" % [
 		data_pack.teams.size(),
 		data_pack.players.size(),
+		managed_team_name,
 		data_pack.schema_version
 	]
-	squad_view.setup(squad_state)
-	tactics_view.setup(tactics_state)
-	fixture_view.setup(league, USER_TEAM_ID)
+	squad_view.setup(squad_state, managed_team_name)
+	tactics_view.setup(tactics_state, managed_team_name)
+	fixture_view.setup(league, managed_team_id, managed_team_name)
 	standings_view.setup(league)
+	team_selection_view.setup(data_pack.teams, managed_team_id)
+	_set_screen("dashboard")
 	_refresh_ui()
+	return true
+
+func _find_team(team_id: String) -> Dictionary:
+	for team in data_pack.teams:
+		if String(team.get("id", "")) == team_id:
+			return team
+	return {}
 
 func _build_ui() -> void:
 	var background := ColorRect.new()
@@ -133,7 +156,7 @@ func _build_ui() -> void:
 	sidebar.add_child(navigation)
 	navigation.add_child(_make_label("MENÜ", 12, COLOR_MUTED))
 
-	var menu_items := ["Genel Bakış", "Kadro", "Taktikler", "Fikstür", "Lig Tablosu", "Transfer"]
+	var menu_items := ["Genel Bakış", "Takım Seç", "Kadro", "Taktikler", "Fikstür", "Lig Tablosu", "Transfer"]
 	for index in range(menu_items.size()):
 		var button := Button.new()
 		button.text = menu_items[index]
@@ -145,12 +168,14 @@ func _build_ui() -> void:
 		if index == 0:
 			button.pressed.connect(_show_dashboard)
 		elif index == 1:
-			button.pressed.connect(_show_squad)
+			button.pressed.connect(_show_team_selection)
 		elif index == 2:
-			button.pressed.connect(_show_tactics)
+			button.pressed.connect(_show_squad)
 		elif index == 3:
-			button.pressed.connect(_show_fixtures)
+			button.pressed.connect(_show_tactics)
 		elif index == 4:
+			button.pressed.connect(_show_fixtures)
+		elif index == 5:
 			button.pressed.connect(_show_standings)
 		else:
 			button.pressed.connect(_show_placeholder.bind(menu_items[index]))
@@ -176,7 +201,8 @@ func _build_ui() -> void:
 	dashboard_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	dashboard_header.add_child(dashboard_title)
 	dashboard_title.add_child(_make_label("Genel Bakış", 24, COLOR_TEXT))
-	dashboard_title.add_child(_make_label("Kocaelispor teknik direktör koltuğu", 14, COLOR_MUTED))
+	dashboard_subtitle = _make_label("Takım yükleniyor", 14, COLOR_MUTED)
+	dashboard_title.add_child(dashboard_subtitle)
 
 	var stats_grid := GridContainer.new()
 	stats_grid.columns = 3
@@ -186,7 +212,7 @@ func _build_ui() -> void:
 
 	week_value = _add_stat_card(stats_grid, "HAFTA", "1/34", COLOR_ACCENT)
 	leader_value = _add_stat_card(stats_grid, "LİDER", "-", COLOR_BLUE)
-	user_position_value = _add_stat_card(stats_grid, "KOCAELİSPOR", "-", COLOR_SUCCESS)
+	user_position_value = _add_stat_card(stats_grid, "TAKIM", "-", COLOR_SUCCESS)
 
 	var upcoming_panel := PanelContainer.new()
 	upcoming_panel.add_theme_stylebox_override("panel", _make_panel_style(COLOR_PANEL, COLOR_PANEL_ALT))
@@ -263,18 +289,23 @@ func _build_ui() -> void:
 	standings_view = StandingsViewScript.new()
 	standings_view.visible = false
 	content.add_child(standings_view)
+	team_selection_view = TeamSelectionViewScript.new()
+	team_selection_view.visible = false
+	team_selection_view.new_career_requested.connect(_on_new_career_requested)
+	content.add_child(team_selection_view)
 
 func _refresh_ui() -> void:
 	var rows: Array = league.get_table()
 	if rows.is_empty():
 		return
+	dashboard_subtitle.text = "%s teknik direktör koltuğu" % managed_team_name
 
 	var leader: Dictionary = rows[0]
 	leader_value.text = String(leader["name"])
 
 	var user_row: Dictionary = {}
 	for index in range(rows.size()):
-		if String(rows[index]["id"]) == USER_TEAM_ID:
+		if String(rows[index]["id"]) == managed_team_id:
 			user_row = rows[index]
 			user_position_value.text = "%d. sıra | %d puan" % [index + 1, int(rows[index]["points"])]
 			break
@@ -284,7 +315,7 @@ func _refresh_ui() -> void:
 	week_value.text = "%d/34" % displayed_week
 	play_button.disabled = league.current_week > 34
 
-	var next_fixture: Dictionary = league.get_next_fixture_for_team(USER_TEAM_ID)
+	var next_fixture: Dictionary = league.get_next_fixture_for_team(managed_team_id)
 	if next_fixture.is_empty():
 		upcoming_label.text = "Sezon tamamlandı"
 	else:
@@ -326,12 +357,13 @@ func _on_load_pressed() -> void:
 	if save_game == null:
 		result_label.text = "Oyun yüklenemedi: kayıt sistemi hazır değil."
 		return
-	if not save_game.load_from_file(SAVE_PATH, league, squad_state, tactics_state, data_pack.schema_version, USER_TEAM_ID):
+	if not save_game.load_from_file(SAVE_PATH, league, squad_state, tactics_state, data_pack.schema_version, managed_team_id):
 		result_label.text = "Oyun yüklenemedi: %s" % save_game.error_message
 		return
 	_sync_managed_context()
-	squad_view.setup(squad_state)
-	tactics_view.setup(tactics_state)
+	squad_view.setup(squad_state, managed_team_name)
+	tactics_view.setup(tactics_state, managed_team_name)
+	fixture_view.setup(league, managed_team_id, managed_team_name)
 	_refresh_ui()
 	result_label.text = "Oyun yüklendi. Hafta %d/%d" % [min(league.current_week, 34), 34]
 
@@ -381,7 +413,7 @@ func _on_play_week_pressed() -> void:
 func _sync_managed_context() -> void:
 	if league == null or squad_state == null or tactics_state == null:
 		return
-	league.set_team_context(USER_TEAM_ID, {
+	league.set_team_context(managed_team_id, {
 		"starting_xi": squad_state.get_starting_xi(),
 		"tactics": tactics_state.get_snapshot()
 	})
@@ -392,6 +424,13 @@ func _show_dashboard() -> void:
 
 func _show_squad() -> void:
 	_set_screen("squad")
+
+func _show_team_selection() -> void:
+	_set_screen("team_selection")
+
+func _on_new_career_requested(selected_team_id: String) -> void:
+	if _start_new_career(selected_team_id):
+		result_label.text = "%s ile yeni kariyer başladı." % managed_team_name
 
 func _show_tactics() -> void:
 	_set_screen("tactics")
@@ -418,6 +457,8 @@ func _set_screen(screen_name: String) -> void:
 		fixture_view.visible = screen_name == "fixtures"
 	if standings_view != null:
 		standings_view.visible = screen_name == "standings"
+	if team_selection_view != null:
+		team_selection_view.visible = screen_name == "team_selection"
 	if content_scroll != null:
 		content_scroll.scroll_vertical = 0
 

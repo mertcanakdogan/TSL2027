@@ -10,16 +10,21 @@ const COLOR_SUCCESS := Color(0.0, 0.588235, 0.431373, 1.0)
 
 var league_state
 var team_id: String = ""
+var team_name: String = "Kocaelispor"
 var summary_label: Label
+var subtitle_label: Label
 var fixture_list: VBoxContainer
 var built: bool = false
 
-func setup(state, managed_team_id: String) -> void:
+func setup(state, managed_team_id: String, managed_team_name: String = "Kocaelispor") -> void:
 	league_state = state
 	team_id = managed_team_id
+	team_name = managed_team_name
 	if not built:
 		_build_ui()
 		built = true
+	else:
+		subtitle_label.text = "%s 2026/27 lig fikstürü" % team_name
 	refresh()
 
 func refresh() -> void:
@@ -41,7 +46,8 @@ func _build_ui() -> void:
 	var header := VBoxContainer.new()
 	add_child(header)
 	header.add_child(_make_label("Fikstür", 24, COLOR_TEXT))
-	header.add_child(_make_label("Kocaelispor 2026/27 lig fikstürü", 14, COLOR_MUTED))
+	subtitle_label = _make_label("%s 2026/27 lig fikstürü" % team_name, 14, COLOR_MUTED)
+	header.add_child(subtitle_label)
 	summary_label = _make_label("Fikstür yükleniyor", 13, COLOR_SUCCESS)
 	header.add_child(summary_label)
 
