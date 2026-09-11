@@ -12,11 +12,13 @@
    - Required attributes exist for each position and every value is an integer in the 1–99 range.
 5. `test_rules_are_explicit`
    - The competition rules expose the expected 18-team, 34-week, 21-player matchday, and 5-substitution values.
-6. `test_validator_rejects_unknown_team_reference`
+6. `test_data_pack_metadata_is_explicit`
+   - Team, player, and rule payloads expose schema version, season, source type, and source note metadata.
+7. `test_validator_rejects_unknown_team_reference`
    - A player referencing a missing team produces a validation failure.
-7. `test_validator_rejects_duplicate_player_id`
+8. `test_validator_rejects_duplicate_player_id`
    - Duplicate player IDs produce a validation failure.
-8. `test_validator_rejects_out_of_range_attribute`
+9. `test_validator_rejects_out_of_range_attribute`
    - An attribute below 1 or above 99 produces a validation failure.
 
 ## Red phase expectation
