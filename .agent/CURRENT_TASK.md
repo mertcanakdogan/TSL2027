@@ -6,7 +6,7 @@ TSL2027: Godot 4 + GDScript ile geliştirilen, Trendyol Süper Lig 2026/27 temal
 
 ## Status
 
-In progress — Takım seçimi/yeni kariyer, Kadro/ilk 11, formasyon uygunluğu, Taktikler state/UI, transfer/ekonomi/sözleşme, deterministik temel maç olayları/istatistikleri, yönetilen takımın ilk bağlamlı maç profili, Fikstür/Lig Tablosu ve sürümlü save/load slice'ları tamamlandı; geniş maç simülasyonu ve dağıtım kapıları devam ediyor.
+In progress — Takım seçimi/yeni kariyer, Kadro/ilk 11, formasyon uygunluğu, Taktikler state/UI, transfer/ekonomi/sözleşme, deterministik temel maç olayları/istatistikleri, Credits/veri politikası, yönetilen takımın ilk bağlamlı maç profili, Fikstür/Lig Tablosu, sürümlü save/load ve yerel Windows export doğrulaması tamamlandı; temiz makine/installer ve daha geniş simülasyon kapıları devam ediyor.
 
 ## Last Session Summary
 
@@ -15,8 +15,8 @@ In progress — Takım seçimi/yeni kariyer, Kadro/ilk 11, formasyon uygunluğu,
 ## Next Steps
 
 1. Maç olayları/istatistikleri ve tüm lig oyuncu attribute etkilerini genişlet.
-2. Windows export ve temiz kurulum smoke testini oluştur.
-3. Credits, lisans sınırları ve sentetik veri bildirimini kullanıcı arayüzünde görünür kıl.
+2. Temiz makine/installer smoke testini oluştur ve yayın artefaktını belgeleyerek paketle.
+3. Alt oyuncu rolleri ve tüm lig oyuncu attribute etkileri için simülasyon kapsamını genişlet.
 
 ## Blockers
 

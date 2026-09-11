@@ -18,6 +18,7 @@ func _run() -> void:
 	var transfer_market = scene.get("transfer_market_state")
 	var result_label = scene.get("result_label")
 	var team_selection_view = scene.get("team_selection_view")
+	var credits_view = scene.get("credits_view")
 	var dashboard_nodes: Array = scene.get("dashboard_nodes")
 	_check(squad_view != null, "main scene should create SquadView")
 	_check(tactics_view != null, "main scene should create TacticsView")
@@ -25,6 +26,8 @@ func _run() -> void:
 	_check(standings_view != null, "main scene should create StandingsView")
 	_check(transfer_view != null, "main scene should create TransferView")
 	_check(team_selection_view != null, "main scene should create TeamSelectionView")
+	_check(credits_view != null, "main scene should create CreditsView")
+	_check(not credits_view.visible, "dashboard should hide CreditsView by default")
 	_check(team_selection_view.team_option.item_count == 18, "TeamSelectionView should list all 18 teams")
 	_check(tactics_state != null, "main scene should create TacticsState")
 	_check(scene.get("save_game") != null, "main scene should create SaveGame")
@@ -74,6 +77,19 @@ func _run() -> void:
 	_check(not squad_view.visible, "dashboard action should hide SquadView")
 	_check(not tactics_view.visible, "dashboard action should hide TacticsView")
 	_check(dashboard_nodes[0].visible, "dashboard action should show dashboard nodes")
+
+	scene.call("_show_credits")
+	_check(credits_view.visible, "Credits action should show CreditsView")
+	_check(not dashboard_nodes[0].visible, "Credits action should hide dashboard nodes")
+	_check(credits_view.source_label != null, "Credits view should expose source attribution label")
+	_check(credits_view.policy_label != null, "Credits view should expose data policy label")
+	if credits_view.source_label != null:
+		_check(credits_view.source_label.text.contains("MIT"), "Credits view should explain MIT source-code scope")
+	if credits_view.policy_label != null:
+		_check(credits_view.policy_label.text.to_lower().contains("sentetik"), "Credits view should disclose synthetic data")
+	scene.call("_show_dashboard")
+	_check(not credits_view.visible, "dashboard action should hide CreditsView")
+	_check(dashboard_nodes[0].visible, "dashboard action should restore dashboard nodes")
 
 	var league = scene.get("league")
 	var registered_context: Dictionary = league.team_contexts.get("kocaelispor", {})

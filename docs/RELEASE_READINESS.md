@@ -26,7 +26,7 @@ ise ayrıca lisans ve kaynak doğrulaması gerektirir.
   açılış/kapanış smoke testi.
 - [ ] Temiz makinede açılış, temel kullanıcı akışı, installer ve code-signing
   testi.
-- [ ] Credits, lisans sınırları, sentetik veri bildirimi ve kullanıcıya görünür
+- [x] Credits, lisans sınırları, sentetik veri bildirimi ve kullanıcıya görünür
   veri politikası.
 
 ## Yayın koşulu
