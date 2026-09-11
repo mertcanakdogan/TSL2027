@@ -62,6 +62,20 @@ func _run() -> void:
 	_check(float(strong_profile["home_xg"]) > float(weak_profile["home_xg"]), "stronger XI should raise xG with same seed")
 	_check(float(strong_profile["home_attack_strength"]) > float(strong_profile["home_defense_strength"]), "attacking context should favor attack profile")
 
+	var tactical_attacking_context := {
+		"starting_xi": _build_xi(60),
+		"tactics": _attacking_tactics()
+	}
+	var tactical_cautious_context := {
+		"starting_xi": _build_xi(60),
+		"tactics": _cautious_tactics()
+	}
+	var attacking_tactical_result: Dictionary = engine.simulate(home, away, 8080, tactical_attacking_context, balanced_context)
+	var cautious_tactical_result: Dictionary = engine.simulate(home, away, 8080, tactical_cautious_context, balanced_context)
+	_check(float(attacking_tactical_result["home_attack_strength"]) > float(cautious_tactical_result["home_attack_strength"]), "attacking mentality should raise attack profile against the same opponent")
+	_check(float(attacking_tactical_result["home_defense_strength"]) < float(cautious_tactical_result["home_defense_strength"]), "cautious mentality should raise defense profile against the same opponent")
+	_check(attacking_tactical_result["events"].size() == int(attacking_tactical_result["home_goals"]) + int(attacking_tactical_result["away_goals"]) + int(attacking_tactical_result["match_stats"]["home_yellow_cards"]) + int(attacking_tactical_result["match_stats"]["away_yellow_cards"]), "event count should match goal and card statistics")
+
 	var league = LeagueStateScript.new()
 	league.initialize([home, away], 2026)
 	_check(league.set_team_context("home", attacking_context), "known team context should be accepted")
@@ -114,6 +128,16 @@ func _attacking_tactics() -> Dictionary:
 	tactics["build_up_risk"] = 70
 	tactics["directness"] = 70
 	tactics["transition_speed"] = 75
+	return tactics
+
+func _cautious_tactics() -> Dictionary:
+	var tactics := _balanced_tactics()
+	tactics["mentality"] = "cautious"
+	tactics["tempo"] = 35
+	tactics["press_intensity"] = 35
+	tactics["defensive_line"] = 35
+	tactics["build_up_risk"] = 30
+	tactics["directness"] = 35
 	return tactics
 
 func _check(condition: bool, message: String) -> void:
