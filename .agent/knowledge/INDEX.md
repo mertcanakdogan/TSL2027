@@ -6,3 +6,4 @@
 | 2026-09-11 | decision | [Lineup state boundary](./squad-state-boundary.md) | Mutable starter/bench selection stays in SquadState and never mutates the immutable DataPack records. |
 | 2026-09-11 | decision | [Tactics state boundary](./tactics-state-boundary.md) | Tactical intent is validated in a separate TacticsState; the managed context now reaches the profile engine while event effects remain future work. |
 | 2026-09-11 | decision | [Match context boundary](./match-context-boundary.md) | Managed XI and tactical snapshots enter MatchEngine through copied optional contexts with deterministic, inspectable profile modifiers. |
+| 2026-09-11 | decision | [League views boundary](./league-views-boundary.md) | Fixture and standings screens remain read-only views over copied fixtures and LeagueState table data. |

@@ -6,6 +6,8 @@ const SquadStateScript = preload("res://scripts/core/squad_state.gd")
 const TacticsStateScript = preload("res://scripts/core/tactics_state.gd")
 const SquadViewScript = preload("res://scripts/ui/squad_view.gd")
 const TacticsViewScript = preload("res://scripts/ui/tactics_view.gd")
+const FixtureViewScript = preload("res://scripts/ui/fixture_view.gd")
+const StandingsViewScript = preload("res://scripts/ui/standings_view.gd")
 
 const COLOR_BACKGROUND := Color(0.05098, 0.058824, 0.078431, 1.0)
 const COLOR_PANEL := Color(0.090196, 0.105882, 0.137255, 1.0)
@@ -33,6 +35,8 @@ var squad_state
 var squad_view
 var tactics_state
 var tactics_view
+var fixture_view
+var standings_view
 var dashboard_nodes: Array = []
 var content_scroll: ScrollContainer
 
@@ -69,6 +73,8 @@ func _ready() -> void:
 	]
 	squad_view.setup(squad_state)
 	tactics_view.setup(tactics_state)
+	fixture_view.setup(league, USER_TEAM_ID)
+	standings_view.setup(league)
 	_refresh_ui()
 
 func _build_ui() -> void:
@@ -136,6 +142,10 @@ func _build_ui() -> void:
 			button.pressed.connect(_show_squad)
 		elif index == 2:
 			button.pressed.connect(_show_tactics)
+		elif index == 3:
+			button.pressed.connect(_show_fixtures)
+		elif index == 4:
+			button.pressed.connect(_show_standings)
 		else:
 			button.pressed.connect(_show_placeholder.bind(menu_items[index]))
 
@@ -225,6 +235,12 @@ func _build_ui() -> void:
 	tactics_view = TacticsViewScript.new()
 	tactics_view.visible = false
 	content.add_child(tactics_view)
+	fixture_view = FixtureViewScript.new()
+	fixture_view.visible = false
+	content.add_child(fixture_view)
+	standings_view = StandingsViewScript.new()
+	standings_view.visible = false
+	content.add_child(standings_view)
 
 func _refresh_ui() -> void:
 	var rows: Array = league.get_table()
@@ -259,6 +275,10 @@ func _refresh_ui() -> void:
 		]
 
 	_render_table(rows)
+	if fixture_view != null:
+		fixture_view.refresh()
+	if standings_view != null:
+		standings_view.refresh()
 
 func _set_data_error_state(message: String = "") -> void:
 	data_status_label.text = "Veri paketi yüklenemedi"
@@ -327,6 +347,12 @@ func _show_squad() -> void:
 func _show_tactics() -> void:
 	_set_screen("tactics")
 
+func _show_fixtures() -> void:
+	_set_screen("fixtures")
+
+func _show_standings() -> void:
+	_set_screen("standings")
+
 func _show_placeholder(screen_name: String) -> void:
 	_set_screen("dashboard")
 	result_label.text = "%s ekranı sonraki geliştirme diliminde açılacak." % screen_name
@@ -339,6 +365,10 @@ func _set_screen(screen_name: String) -> void:
 		squad_view.visible = screen_name == "squad"
 	if tactics_view != null:
 		tactics_view.visible = screen_name == "tactics"
+	if fixture_view != null:
+		fixture_view.visible = screen_name == "fixtures"
+	if standings_view != null:
+		standings_view.visible = screen_name == "standings"
 	if content_scroll != null:
 		content_scroll.scroll_vertical = 0
 
