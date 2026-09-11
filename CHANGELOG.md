@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Transfer screen now shows deterministic synthetic offers and performs budget-checked signings.
 - Economy state now tracks balance, weekly revenue, wage budget, contracts, and weekly settlement.
 - Match results now include deterministic goal/card events and bounded shot, corner, foul, card, possession, and xG statistics.
+- Maç context'lerine yedek kulübesi aktarımı, seeded oyuncu değişikliği olayları ve substitution istatistik sayaçları eklendi.
 - Credits / Veri ekranı artık MIT kaynak kodu kapsamını ve sentetik veri sınırını oyun içinde görünür kılıyor.
 - Her oyuncu için pozisyona göre üç alternatif rol skoru ve attack/defense/control profil puanları eklendi; ligdeki varsayılan ilk 11 bağlamları artık maç motoruna aktarılıyor.
 - 34. hafta sonrasında şampiyon ve üç küme düşen takımı gösteren sezon sonu özeti eklendi.

@@ -23,6 +23,7 @@ Trendyol Süper Lig 2026/27 sezonu için geliştirilen offline futbol menajerlik
 - Formasyon pozisyon uygunluğu, taslak taktik seçimi ve açık ilk 11 uygulaması
 - Sentetik transfer pazarı, kulüp bütçesi, haftalık maaş tahsilatı ve sözleşme save/load akışı
 - Deterministik maç olayları ve şut/isabetli şut/korner/faul/kart/xG istatistikleri
+- Yedek kulübesinden türetilen deterministik oyuncu değişikliği olayları ve maç raporu gösterimi
 - Pozisyona göre üç alternatif rol uygunluğu ve oyuncu profillerinin maç profiline etkisi
 - Sezon bitiminde şampiyon ve üç küme düşen takımı gösteren türetilmiş özet
 - Araştırma, veri politikası ve geliştirme yol haritası

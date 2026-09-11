@@ -18,3 +18,4 @@
 | 2026-09-11 | decision | [Full verification command boundary](./full-verification-command-boundary.md) | One PowerShell entry point runs core tests and the Windows release smoke chain. |
 | 2026-09-11 | evidence | [Release evidence](../../docs/RELEASE_EVIDENCE.md) | Latest local test, export, package hash, and external release boundary are recorded. |
 | 2026-09-11 | decision | [Season end summary boundary](./season-end-summary-boundary.md) | Final champion and three relegation rows are derived read-only after week 34. |
+| 2026-09-11 | decision | [Match substitution events boundary](./match-substitution-events-boundary.md) | Copied bench snapshots produce bounded deterministic report events without mutating lineup state. |
